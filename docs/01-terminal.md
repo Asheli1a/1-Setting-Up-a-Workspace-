@@ -16,7 +16,8 @@ $ pwd
 $ ls -la
 total 8
 drwxr-xr-x 2 user user 4096 Oct 29 17:39 .
-drwxr-xr-x 4 user user 4096 Oct 29 17:39 ..```
+drwxr-xr-x 4 user user 4096 Oct 29 17:39 ..
+```
 
 ### 확인 결과
 실습 폴더를 만들고 `pwd`로 현재 위치를 확인했다.
