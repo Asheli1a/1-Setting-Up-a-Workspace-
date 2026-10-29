@@ -15,50 +15,27 @@
 
 ## 2\. 실행 환경
 
-
-
 | 항목 | 실제 환경 |
-
 |---|---|
-
 | 호스트 OS | Windows 11 Pro |
-
 | Windows 버전·빌드 | 10.0.26300.9711 — 기본 빌드 26300 |
-
 | Linux 실행 환경 | Ubuntu on WSL 2 |
-
 | WSL 소프트웨어 버전 | 3.0.3.0 |
-
 | Linux 배포판 | Ubuntu 26.04.1 LTS (Resolute Raccoon) |
-
 | Linux 커널 | 6.18.54.1-microsoft-standard-WSL2 |
-
 | Shell | Bash 5.3.9(1)-release |
-
 | 터미널 앱 | Windows Terminal |
-
 | Docker 실행 방식 | Docker Desktop의 WSL 2 연동 |
-
 | Docker Desktop 버전 | 4.97.0 (244584) |
-
 | Docker CLI 버전 | 29.9.2 — build a82e528 |
-
 | Docker Engine 버전 | 29.9.2 |
-
 | Docker 플랫폼 | linux/amd64 |
-
 | Docker Compose 버전 | v5.6.1 |
-
 | Git 버전 | 2.53.0 |
-
 | 작업 디렉터리 | \~/dev-workstation |
-
 | 검증 일시 | 2026-10-29 17:06:52 +09:00 — 확인 시작 시각 |
 
-
-
 \[환경 확인 명령과 실제 출력](docs/02-docker.md#실행-환경)
-
 
 
 ## 3\. 수행 체크리스트
@@ -148,10 +125,18 @@
 
 ## 7\. 트러블슈팅
 
-|번호|문제|상태|상세 기록|
-|-|-|-|-|
-|1|Docker 소켓 접근 권한 오류|해결 확인 필요|[기록](docs/06-troubleshooting.md)|
-|2|실제 발생한 다른 문제 기록|미작성|[기록](docs/06-troubleshooting.md)|
+실습 중 발생한 두 가지 문제에 대해 증상, 원인 분석, 해결 방법 및 재검증 결과를 기록했다.
+
+| 번호 | 문제 | 해결 방법 | 재검증 결과 | 상태 | 상세 기록 |
+|---|---|---|---|---|---|
+| 1 | Docker 소켓 접근 권한 오류 | Docker Desktop의 Ubuntu WSL 연동 설정 적용 후 Ubuntu 터미널을 종료하고 다시 실행 | `docker info`의 Server 정보 정상 출력 및 `docker run hello-world` 성공 | 해결 완료 | [Docker 오류 기록](docs/06-troubleshooting.md#1-docker-소켓-접근-권한-오류) |
+| 2 | GitHub HTTPS push 인증 실패 | GitHub CLI로 브라우저 인증 후 `gh auth setup-git`으로 Git 인증 연동 | `gh auth status`에서 로그인 확인 및 `git push -u origin main` 성공 | 해결 완료 | [GitHub 인증 오류 기록](docs/06-troubleshooting.md#2-github-https-push-인증-실패) |
+
+### 해결 과정에서 확인한 점
+
+- Docker CLI가 실행되는 것과 Docker 엔진에 정상적으로 연결되는 것은 별개다. 버전 출력뿐 아니라 Server 정보와 컨테이너 실행 결과까지 확인했다.
+- Docker 오류는 WSL 연동 설정 적용 후 터미널을 다시 열어 해결했다. 다만 기존 세션에서 오류가 지속된 내부 원인까지 확정한 것은 아니다.
+- Git의 사용자 이름·이메일 설정과 GitHub 원격 저장소 인증은 별개다. 이번 HTTPS 인증 오류는 GitHub CLI 인증을 통해 해결했다.
 
 ## 8\. 보안 점검
 
