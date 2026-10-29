@@ -50,6 +50,8 @@ permission denied while trying to connect to the docker API at unix:///var/run/d
 
 \### 재검증
 
+```console
+
 $ docker --version
 Docker version 29.9.2, build a82e528
 
@@ -266,7 +268,11 @@ Server:
 
 &#x20;Firewall Backend: iptables
 
+```
 
+
+
+```console
 
 $ docker run hello-world
 
@@ -323,6 +329,8 @@ Share images, automate workflows, and more with a free Docker ID:
 For more examples and ideas, visit:
 
 &#x20;https://docs.docker.com/get-started/
+
+```
 
 
 
