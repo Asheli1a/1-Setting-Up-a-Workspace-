@@ -38,7 +38,7 @@ permission denied while trying to connect to the docker API at unix:///var/run/d
 
 \- 현재 사용자에게 Docker 소켓 접근 권한이 없다.
 
-\- 터미널에서 ubuntu 접속을 먼저 하고, Docker Desktop에서 WSL 연동(Setting -> Resources ->WSL integration ->  "Enable integration with my default WSL distro" 와 "Enable integration with additional distros:  Ubuntu"에 체크 -> Apply \& restart로 적용)하고 기존 접속을 계속 사용했기 때문
+\- 터미널에서 ubuntu 접속을 먼저 하고, Docker Desktop에서 WSL 연동(Setting -> Resources ->WSL integration ->  "Enable integration with my default WSL distro" 와 "Enable integration with additional distros:  Ubuntu"에 체크 -> Apply \& restart로 적용)하고 기존 접속을 계속 사용했기 때문(기존 세션에 연동 상태가 정상 반영되지 않았음)
 
 
 
@@ -51,12 +51,10 @@ permission denied while trying to connect to the docker API at unix:///var/run/d
 \### 재검증
 
 $ docker --version
-
-docker info
-
-docker run hello-world
-
 Docker version 29.9.2, build a82e528
+
+
+$ docker info
 
 Client:
 
@@ -270,6 +268,8 @@ Server:
 
 
 
+$ docker run hello-world
+
 Unable to find image 'hello-world:latest' locally
 
 latest: Pulling from library/hello-world
@@ -328,5 +328,94 @@ For more examples and ideas, visit:
 
 \### 현재 상태
 
-해결 결과 확인.
+Docker 엔진 연결 및 hello-world 실행 성공을 확인했다.
+
+
+## 2. GitHub HTTPS push 인증 실패
+
+
+
+\### 증상
+
+
+
+```console
+
+$ git push -u origin main
+
+remote: Invalid username or token. Password authentication is not supported for Git operations.
+
+fatal: Authentication failed for '(https://github.com/Asheli1a/1-Setting-Up-a-Workspace-.git/)'
+
+```
+
+
+
+\### 원인
+
+GitHub HTTPS Git 작업에서는 계정 비밀번호 인증을 사용할 수 없다.
+
+Git 사용자 이름·이메일 설정과 원격 저장소 인증은 별개다.
+
+
+
+\### 해결
+
+GitHub CLI로 브라우저 인증을 완료하고 Git 인증 연동을 설정했다.
+
+
+
+```bash
+
+gh auth login --hostname github.com --git-protocol https --web
+
+gh auth setup-git
+
+```
+
+
+
+\### 재검증
+
+
+
+```console
+
+$ gh auth setup-git
+
+gh auth status
+
+github.com
+
+&#x20; ✓ Logged in to github.com account Asheli1a (/home/user/.config/gh/hosts.yml)
+
+&#x20; - Active account: true
+
+&#x20; - Git operations protocol: https
+
+&#x20; - Token: gho\_\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*
+
+&#x20; - Token scopes: 'gist', 'read:org', 'repo', 'workflow'
+
+
+
+$ git push -u origin main
+
+Enumerating objects: 7, done.
+
+Counting objects: 100% (7/7), done.
+
+Delta compression using up to 8 threads
+
+Compressing objects: 100% (6/6), done.
+
+Writing objects: 100% (7/7), 5.50 KiB | 5.50 MiB/s, done.
+
+Total 7 (delta 0), reused 0 (delta 0), pack-reused 0 (from 0)
+
+To https://github.com/Asheli1a/1-Setting-Up-a-Workspace-.git
+
+&#x20;\* \[new branch]      main -> main
+
+branch 'main' set up to track 'origin/main'.
 
