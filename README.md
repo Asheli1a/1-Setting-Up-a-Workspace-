@@ -83,7 +83,7 @@
 
 |항목|검증 방법|결과|상세 증거|
 |-|-|-|-|
-|터미널 기본 조작|pwd, ls -la, mkdir, touch, cat, cp, mv, rm|일부 완료|[기록](docs/01-terminal.md)|
+|터미널 기본 조작|pwd, ls -la, mkdir, touch, cat, cp, mv, rm|완료|[기록](docs/01-terminal.md)|
 |파일·디렉터리 권한|ls -l, ls -ld, chmod 및 접근 시험|미확인|[기록](docs/01-terminal.md)|
 |Docker 설치·점검|docker --version, docker version, docker info|완료 — 서버 연결 정상|[기록](docs/02-docker.md)|
 |이미지·컨테이너 운영|pull, images, run, stop, ps, logs, stats|미수행|[기록](docs/02-docker.md)|
