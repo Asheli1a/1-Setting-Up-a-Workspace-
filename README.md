@@ -15,29 +15,59 @@
 
 ## 2\. 실행 환경
 
-|항목|실제 환경|
-|-|-|
-|호스트 OS|미확인|
-|Linux 실행 환경|WSL 여부·버전 확인 후 기록|
-|Linux 배포판|확인 후 기록|
-|Shell|확인 후 기록|
-|터미널 앱|실제 사용 앱 기록|
-|Docker 실행 방식|Docker Desktop 또는 별도 Engine 여부 기록|
-|Docker CLI 버전|확인 후 기록|
-|Docker Engine 버전|확인 후 기록|
-|Git 버전|확인 후 기록|
-|검증 일자|실제 수행 날짜 기록|
 
-환경 확인 명령과 실제 출력:
-[환경·Docker 확인 기록](docs/02-docker.md#실행-환경)
+
+| 항목 | 실제 환경 |
+
+|---|---|
+
+| 호스트 OS | Windows 11 Pro |
+
+| Windows 버전·빌드 | 10.0.26300.9711 — 기본 빌드 26300 |
+
+| Linux 실행 환경 | Ubuntu on WSL 2 |
+
+| WSL 소프트웨어 버전 | 3.0.3.0 |
+
+| Linux 배포판 | Ubuntu 26.04.1 LTS (Resolute Raccoon) |
+
+| Linux 커널 | 6.18.54.1-microsoft-standard-WSL2 |
+
+| Shell | Bash 5.3.9(1)-release |
+
+| 터미널 앱 | Windows Terminal |
+
+| Docker 실행 방식 | Docker Desktop의 WSL 2 연동 |
+
+| Docker Desktop 버전 | 4.97.0 (244584) |
+
+| Docker CLI 버전 | 29.9.2 — build a82e528 |
+
+| Docker Engine 버전 | 29.9.2 |
+
+| Docker 플랫폼 | linux/amd64 |
+
+| Docker Compose 버전 | v5.6.1 |
+
+| Git 버전 | 2.53.0 |
+
+| 작업 디렉터리 | \~/dev-workstation |
+
+| 검증 일시 | 2026-10-29 17:06:52 +09:00 — 확인 시작 시각 |
+
+
+
+\[환경 확인 명령과 실제 출력](docs/02-docker.md#실행-환경)
+
+
 
 ## 3\. 수행 체크리스트
 
 * \[x] 작업 디렉터리 생성 및 현재 위치·숨김 파일 포함 목록 확인
 * \[ ] 파일 생성·내용 확인·복사·이름 변경·이동·삭제
 * \[ ] 파일 1개와 디렉터리 1개의 권한 변경 전후 검증
-* \[ ] Docker 버전 및 데몬 연결 확인
-* \[ ] hello-world 실행 성공
+* \[x] Docker 버전 및 데몬 연결 확인
+* \[x] hello-world 실행 성공
 * \[ ] 이미지 다운로드·목록 확인
 * \[ ] 컨테이너 실행·중지·목록 확인
 * \[ ] 컨테이너 로그·리소스 사용량 확인
@@ -78,7 +108,7 @@
 |-|-|-|-|
 |터미널 기본 조작|pwd, ls -la, mkdir, touch, cat, cp, mv, rm|일부 완료|[기록](docs/01-terminal.md)|
 |파일·디렉터리 권한|ls -l, ls -ld, chmod 및 접근 시험|미확인|[기록](docs/01-terminal.md)|
-|Docker 설치·점검|docker --version, docker info|권한 오류 발생, 해결 확인 필요|[기록](docs/02-docker.md)|
+|Docker 설치·점검|docker --version, docker version, docker info|완료 — 서버 연결 정상|[기록](docs/02-docker.md)|
 |이미지·컨테이너 운영|pull, images, run, stop, ps, logs, stats|미수행|[기록](docs/02-docker.md)|
 |Ubuntu 컨테이너 실습|컨테이너 내부 명령 및 상태 비교|미수행|[기록](docs/02-docker.md)|
 |커스텀 이미지|Dockerfile 작성, build, run|미수행|[기록](docs/03-web.md)|
