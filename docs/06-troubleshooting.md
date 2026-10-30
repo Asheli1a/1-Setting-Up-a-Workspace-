@@ -427,3 +427,118 @@ To https://github.com/Asheli1a/1-Setting-Up-a-Workspace-.git
 
 branch 'main' set up to track 'origin/main'.
 
+
+
+## 3. GitHub 웹 업로드 후 push 거부 및 브랜치 분기
+
+### 증상
+
+바인드 마운트 실습 중 브라우저 접속 증거 이미지를 윈도우상의 GitHub 웹에서 업로드한 뒤, 로컬에서 바인드 마운트 실습 문서를 커밋하고 push했다.
+그러나 원격 변경을 먼저 가져와야 한다는 메시지와 함께 거부됐다.
+
+```console
+$ git commit -m "docs: record verified bind mount content updates"
+[main f3cf6ff] docs: record verified bind mount content updates
+ 3 files changed, 250 insertions(+), 3 deletions(-)
+ create mode 100644 cli-practice/bind-site/index.html
+
+$ git push origin main
+ ! [rejected]        main -> main (fetch first)
+error: failed to push some refs to '[https://github.com/Asheli1a/1-Setting-Up-a-Workspace-.git](https://github.com/Asheli1a/1-Setting-Up-a-Workspace-.git)'
+```
+
+이후 `git pull`을 실행했지만, 분기된 브랜치의 통합 방식을 지정해야 한다는 메시지와 함께 중단됐다.
+
+```console
+$ git pull
+From [https://github.com/Asheli1a/1-Setting-Up-a-Workspace-](https://github.com/Asheli1a/1-Setting-Up-a-Workspace-)
+   10c69f3..c60296f  main       -> origin/main
+hint: You have divergent branches and need to specify how to reconcile them.
+fatal: Need to specify how to reconcile divergent branches.
+```
+
+출력은 오류와 관련된 부분만 발췌했다.
+
+### 원인 가설
+
+- GitHub 웹에서 이미지를 업로드하면서 원격 main에 새 커밋이 생겼다.
+- 로컬에서도 별도의 문서 커밋을 만들어 양쪽 이력이 분기됐을 가능성이 있다.
+- 처음에는 이미지 파일 충돌을 의심했지만, 실제 파일 충돌인지 이력 통합 문제인지 구분할 필요가 있었다.
+
+### 확인
+
+`git pull`은 원격 변경을 가져왔지만, merge 또는 rebase 방식이 지정되지 않아 통합을 수행하지 않았다.
+
+이후 확인한 커밋 그래프에서는 공통 커밋 이후 로컬 문서 커밋과 원격 웹 업로드 커밋이 각각 존재했다.
+
+```console
+$ git log --oneline --graph --decorate -8
+*   3576cc1 (HEAD -> main) Merge remote-tracking branch 'origin/main'
+|\
+| * c60296f (origin/main, origin/HEAD) Add files via upload
+| * a9640de Add files via upload
+| * 5d48f46 Add files via upload
+* | f3cf6ff docs: record verified bind mount content updates
+|/
+* 10c69f3 _
+* e0f55a9 docs: complete custom web image and dual-port verification
+* b75be04 docs: record Docker operations and container lifecycle experiments
+```
+
+위 그래프는 병합 후, 최종 push 전에 확인한 결과다.
+
+### 해결
+
+로컬 문서 커밋과 원격 이미지 커밋을 모두 보존하기 위해 merge 방식으로 통합했다.
+
+```console
+$ git merge --no-edit origin/main
+Merge made by the 'ort' strategy.
+ docs/images/bind-after.png  | Bin 0 -> 35287 bytes
+ docs/images/bind-before.png | Bin 0 -> 22995 bytes
+ docs/images/web-8080.png    | Bin 0 -> 23626 bytes
+ docs/images/web-8081.png    | Bin 0 -> 24641 bytes
+ 4 files changed, 0 insertions(+), 0 deletions(-)
+ create mode 100644 docs/images/bind-after.png
+ create mode 100644 docs/images/bind-before.png
+ create mode 100644 docs/images/web-8081.png
+```
+
+실제 파일 충돌 없이 자동 병합됐으며, 병합 커밋 `3576cc1`이 생성됐다.
+강제 push나 기존 커밋 삭제는 사용하지 않았다.
+
+### 재검증
+
+원격에서 업로드한 이미지가 로컬에도 반영됐는지 확인했다.
+
+```console
+$ ls -l docs/images/
+total 112
+-rw-r--r-- 1 user user 35287 Oct 30 19:14 bind-after.png
+-rw-r--r-- 1 user user 22995 Oct 30 19:14 bind-before.png
+-rw-r--r-- 1 user user 23626 Oct 30 19:14 web-8080.png
+-rw-r--r-- 1 user user 24641 Oct 30 19:14 web-8081.png
+```
+
+병합 결과를 GitHub에 push했다.
+
+```console
+$ git push origin main
+To [https://github.com/Asheli1a/1-Setting-Up-a-Workspace-.git](https://github.com/Asheli1a/1-Setting-Up-a-Workspace-.git)
+   c60296f..3576cc1  main -> main
+```
+
+push 출력은 핵심 부분만 발췌했다.
+
+### 현재 상태
+
+해결 완료.
+로컬 문서 변경과 GitHub 웹 업로드 이미지를 통합하고, 병합 결과를 원격 main에 반영했다.
+
+### 배운 점 및 재발 방지
+
+- 이번 문제는 이미지 내용 충돌이 아니라, 원격과 로컬에서 각각 커밋하면서 발생한 브랜치 분기였다.
+- push 거부와 실제 파일 병합 충돌을 구분해야 한다.
+- `git pull`에서 통합 방식 지정 오류가 발생한 경우, 아직 파일 충돌이 발생했다고 단정할 수 없다.
+- 앞으로는 캡처도 로컬의 docs/images에 저장하고, 관련 문서와 함께 커밋하는 방식으로 작업 흐름을 통일한다.
+- GitHub 웹에서 직접 변경했다면 로컬 작업을 이어가기 전에 원격 변경을 확인하고 동기화한다.

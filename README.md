@@ -162,18 +162,22 @@
 
 ## 7\. 트러블슈팅
 
-실습 중 발생한 두 가지 문제에 대해 증상, 원인 분석, 해결 방법 및 재검증 결과를 기록했다.
+실습 중 발생한 세 가지 문제에 대해 증상, 원인 분석, 해결 방법 및 재검증 결과를 기록했다.
 
 | 번호 | 문제 | 해결 방법 | 재검증 결과 | 상태 | 상세 기록 |
 |---|---|---|---|---|---|
 | 1 | Docker 소켓 접근 권한 오류 | Docker Desktop의 Ubuntu WSL 연동 설정 적용 후 Ubuntu 터미널을 종료하고 다시 실행 | `docker info`의 Server 정보 정상 출력 및 `docker run hello-world` 성공 | 해결 완료 | [Docker 오류 기록](docs/06-troubleshooting.md#1-docker-소켓-접근-권한-오류) |
 | 2 | GitHub HTTPS push 인증 실패 | GitHub CLI로 브라우저 인증 후 `gh auth setup-git`으로 Git 인증 연동 | `gh auth status`에서 로그인 확인 및 `git push -u origin main` 성공 | 해결 완료 | [GitHub 인증 오류 기록](docs/06-troubleshooting.md#2-github-https-push-인증-실패) |
+| 3 | GitHub 웹 업로드 후 push 거부 및 브랜치 분기 | `git merge --no-edit origin/main`으로 원격 이미지와 로컬 문서 변경 통합 | 자동 병합, 이미지 파일 확인 및 push 성공 | 해결 완료 | [브랜치 분기 해결 기록](docs/06-troubleshooting.md#3-github-웹-업로드-후-push-거부-및-브랜치-분기) |
 
 ### 해결 과정에서 확인한 점
 
 - Docker CLI가 실행되는 것과 Docker 엔진에 정상적으로 연결되는 것은 별개다. 버전 출력뿐 아니라 Server 정보와 컨테이너 실행 결과까지 확인했다.
 - Docker 오류는 WSL 연동 설정 적용 후 터미널을 다시 열어 해결했다. 다만 기존 세션에서 오류가 지속된 내부 원인까지 확정한 것은 아니다.
 - Git의 사용자 이름·이메일 설정과 GitHub 원격 저장소 인증은 별개다. 이번 HTTPS 인증 오류는 GitHub CLI 인증을 통해 해결했다.
+- GitHub 웹과 로컬에서 각각 커밋하면 이력이 분기될 수 있다.
+  이번에는 실제 파일 충돌 없이 merge로 통합했다.
+- 캡처와 관련 문서를 로컬에서 함께 커밋하는 방식으로 이후 작업 흐름을 통일한다.
 
 ## 8\. 보안 점검
 
