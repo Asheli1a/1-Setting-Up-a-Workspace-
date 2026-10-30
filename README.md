@@ -35,7 +35,7 @@
 | 작업 디렉터리 | `~/dev-workstation` |
 | 검증 일시 | 2026-10-29 17:06:52 (KST) — 확인 시작 시각 |
 
-\(환경 확인 명령과 실제 출력)[기록](docs/02-docker.md#실행-환경)
+\[환경_확인_명령과_실제_출력](docs/02-docker.md#실행-환경)
 
 메모: 윈도우 11 내장 WSL 2 환경에 Ubuntu 배포판 설치( wsl --install -d Ubuntu ), Docker Desktop을 공식 Windows 설치 [페이지](https://docs.docker.com/desktop/setup/install/windows-install/)에서 내려받아 설치하고 WSL 연동 설정(Setting -> Resources ->WSL integration -> "Enable integration with my default WSL distro" 와 "Enable integration with additional distros: Ubuntu"에 체크 -> Apply & restart로 적용)
 
@@ -53,7 +53,7 @@
 - [x] attach/exec 및 종료·유지 차이 관찰
 - [x] Dockerfile 직접 작성 및 커스텀 이미지 빌드
 - [x] 웹 서버 실행 및 포트 매핑 접속 확인
-- [ ] 바인드 마운트 변경 전후 응답 비교
+- [x] 바인드 마운트 변경 전후 응답 비교
 - [ ] 컨테이너 삭제·재생성 후 볼륨 데이터 유지 확인
 - [ ] Git 사용자 정보·기본 브랜치 설정
 - [x] GitHub 저장소 연결 및 push
@@ -91,7 +91,7 @@
 |Ubuntu 컨테이너 실습|내부 명령 실행 및 exec/attach 종료·분리 비교|완료 — 별도 Bash 종료·연결 분리·주 Bash 종료의 차이 확인|[기록](docs/02-docker.md)|
 |커스텀 이미지|직접 작성한 Dockerfile로 build 및 run|완료 — 커스텀 HTML 포함 이미지 빌드·실행 성공|[기록](docs/03-web.md)|
 |포트 매핑|8080·8081 curl 응답 및 주소창 포함 캡처|완료 — 두 포트 모두 HTTP 200 및 v1 콘텐츠 확인|[기록](docs/03-web.md)|
-|바인드 마운트|호스트 파일 변경 전후 응답 비교|미수행|[기록](docs/04-storage.md)|
+|바인드 마운트|마운트 설정 및 호스트 파일 변경 전후 응답 비교|완료 — 재빌드·재시작 없이 8082의 v1→v2 반영, 8080·8081은 v1 유지|[기록](docs/04-storage.md)|
 |볼륨 영속성|컨테이너 삭제·재생성 전후 데이터 비교|미수행|[기록](docs/04-storage.md)|
 |Git·GitHub·VSCode|설정 출력, push 및 연동 화면|진행 중 — GitHub push 완료, Git 설정 증거 및 VSCode 연동 확인 필요|[기록](docs/05-git-github.md)|
 
