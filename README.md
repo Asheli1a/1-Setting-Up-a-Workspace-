@@ -35,7 +35,7 @@
 | 작업 디렉터리 | `~/dev-workstation` |
 | 검증 일시 | 2026-10-29 17:06:52 (KST) — 확인 시작 시각 |
 
-\[환경_확인_명령과_실제_출력](docs/02-docker.md#실행-환경)
+[환경_확인_명령과_실제_출력](docs/02-docker.md#실행-환경)
 
 메모: 윈도우 11 내장 WSL 2 환경에 Ubuntu 배포판 설치( wsl --install -d Ubuntu ), Docker Desktop을 공식 Windows 설치 [페이지](https://docs.docker.com/desktop/setup/install/windows-install/)에서 내려받아 설치하고 WSL 연동 설정(Setting -> Resources ->WSL integration -> "Enable integration with my default WSL distro" 와 "Enable integration with additional distros: Ubuntu"에 체크 -> Apply & restart로 적용)
 
