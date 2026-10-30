@@ -46,11 +46,11 @@
 - [x] 파일 1개와 디렉터리 1개의 권한 변경 전후 검증
 - [x] Docker 버전 및 데몬 연결 확인
 - [x] hello-world 실행 성공
-- [ ] 이미지 다운로드·목록 확인
-- [ ] 컨테이너 실행·중지·목록 확인
-- [ ] 컨테이너 로그·리소스 사용량 확인
-- [ ] Ubuntu 컨테이너 내부에서 명령 실행
-- [ ] attach/exec 및 종료·유지 차이 관찰
+- [x] 이미지 다운로드·목록 확인
+- [x] 컨테이너 실행·중지·목록 확인
+- [x] 컨테이너 로그·리소스 사용량 확인
+- [x] Ubuntu 컨테이너 내부에서 명령 실행
+- [x] attach/exec 및 종료·유지 차이 관찰
 - [ ] Dockerfile 직접 작성 및 커스텀 이미지 빌드
 - [ ] 웹 서버 실행 및 포트 매핑 접속 확인
 - [ ] 바인드 마운트 변경 전후 응답 비교
@@ -87,8 +87,8 @@
 |터미널 기본 조작|pwd, ls -la, mkdir, touch, cat, cp, mv, rm|완료|[기록](docs/01-terminal.md)|
 |파일·디렉터리 권한|ls -l, ls -ld, chmod 및 접근 시험|완료 — 파일 쓰기 및 디렉터리 진입의 실패·복구 확인|[기록](docs/01-terminal.md)|
 |Docker 설치·점검|docker --version, docker version, docker info|완료 — 서버 연결 정상|[기록](docs/02-docker.md)|
-|이미지·컨테이너 운영|pull, images, run, stop, ps, logs, stats|미수행|[기록](docs/02-docker.md)|
-|Ubuntu 컨테이너 실습|컨테이너 내부 명령 및 상태 비교|미수행|[기록](docs/02-docker.md)|
+|이미지·컨테이너 운영|pull, images, run, stop, start, ps, logs, stats|완료 — 이미지·상태·로그·리소스 및 재시작 확인|[기록](docs/02-docker.md)|
+|Ubuntu 컨테이너 실습|내부 명령 실행 및 exec/attach 종료·분리 비교|완료 — 별도 Bash 종료·연결 분리·주 Bash 종료의 차이 확인|[기록](docs/02-docker.md)|
 |커스텀 이미지|Dockerfile 작성, build, run|미수행|[기록](docs/03-web.md)|
 |포트 매핑|curl 응답 및 주소창 포함 브라우저 캡처|미수행|[기록](docs/03-web.md)|
 |바인드 마운트|호스트 파일 변경 전후 응답 비교|미수행|[기록](docs/04-storage.md)|
