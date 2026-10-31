@@ -47,8 +47,8 @@
 | [02-docker](docs/02-docker.md) | 환경·운영·컨테이너 수명 | 실제 로그 검증 완료 |
 | [03-web](docs/03-web.md) | 커스텀 이미지·8080/8081 접속 | 실제 로그 검증 완료 |
 | [04-storage](docs/04-storage.md) | 바인드 마운트·볼륨 | 2026-10-31 볼륨 결과까지 확인, 별도 완성본 유지 |
-| [05-git-github](docs/05-git-github.md) | Git 설정·GitHub·VSCode | Git 설정 증거와 VSCode 연동 확인 필요 |
-| [06-troubleshooting](docs/06-troubleshooting.md) | 오류 3건의 분석·해결 | 해결 결과 기록 완료 |
+| [05-git-github](docs/05-git-github.md) | Git 설정·GitHub·VSCode | 실제 설정·로그인 확인 완료, 상세 문서 최신 반영 확인 필요 |
+| [06-troubleshooting](docs/06-troubleshooting.md) | 오류·환경 문제 6건의 분석·대응 | 해결 확인 5건, 서버 설치 실패 1건은 원인 미확인 |
 
 검토 기준은 2026-10-31까지 제공된 파일과 실행 결과다. 문서 편집 완료와 필수 과제 전체 완료는 구분한다. 05 문서는 이번 검토에 첨부되지 않아 내용·존재 여부를 확인하지 않았다.
 
@@ -68,9 +68,9 @@
 - [x] 웹 서버 실행 및 포트 매핑 접속 확인
 - [x] 바인드 마운트 변경 전후 응답 비교
 - [x] 컨테이너 삭제·재생성 후 볼륨 데이터 유지 확인
-- [ ] Git 사용자 정보·기본 브랜치 설정
+- [x] Git 사용자 정보·기본 브랜치 설정
 - [x] GitHub 저장소 연결 및 push
-- [ ] VSCode GitHub 로그인·저장소 연동 확인
+- [x] VSCode GitHub 로그인·저장소 연동 확인
 - [x] 실제 트러블슈팅 2건 이상 작성
 - [ ] 로그·이미지·커밋 대상의 민감정보 검토
 
@@ -149,7 +149,7 @@ docker rm workspace-web-check-8080 workspace-web-check-8081
 |포트 매핑|8080·8081 curl 응답 및 주소창 포함 캡처|완료 — 두 포트 모두 HTTP 200 및 v1 콘텐츠 확인|[기록](docs/03-web.md)|
 |바인드 마운트|마운트 설정 및 호스트 파일 변경 전후 응답 비교|완료 — 재빌드·재시작 없이 8082의 v1→v2 반영, 8080·8081은 v1 유지|[기록](docs/04-storage.md)|
 |볼륨 영속성|볼륨 생성·연결, 첫 컨테이너 삭제, 새 컨테이너에서 읽기|완료 — bc3f232b6753 삭제 후 6c0da8079371에서 기존 파일 유지 확인|[기록](docs/04-storage.md)|
-|Git·GitHub·VSCode|설정 출력, push 및 연동 화면|진행 중 — GitHub push 완료, Git 설정 증거 및 VSCode 연동 확인 필요|[기록](docs/05-git-github.md)|
+|Git·GitHub·VSCode|설정 출력, push 및 연동 화면|완료 — 전역·저장소별 설정, 본인 계정 및 WSL Git·원격 확인|[기록](docs/05-git-github.md) · [최신 검증](docs/06-troubleshooting.md#5-공용-노트북의-vscode에-타인-github-계정이-로그인됨)|
 
 ## 6. 핵심 개념 정리
 
@@ -218,13 +218,16 @@ Git은 로컬에서 변경 이력과 브랜치를 관리하는 도구이고, Git
 
 ## 7. 트러블슈팅
 
-실습 중 발생한 세 가지 문제에 대해 증상, 원인 분석, 해결 방법 및 재검증 결과를 기록했다.
+실습 중 발생한 여섯 가지 문제에 대해 증상, 원인 분석, 해결 방법 및 재검증 결과를 기록했다. 다섯 건은 해결 결과를 확인했으며, 외부 `code .`의 서버 설치 실패 한 건은 원인 미확인으로 구분했다.
 
 | 번호 | 문제 | 해결 방법 | 재검증 결과 | 상태 | 상세 기록 |
 |---|---|---|---|---|---|
 | 1 | Docker 소켓 접근 권한 오류 | Docker Desktop의 Ubuntu WSL 연동 설정 적용 후 Ubuntu 터미널을 종료하고 다시 실행 | `docker info`의 Server 정보 정상 출력 및 `docker run hello-world` 성공 | 해결 완료 | [Docker 오류 기록](docs/06-troubleshooting.md#1-docker-소켓-접근-권한-오류) |
 | 2 | GitHub HTTPS push 인증 실패 | GitHub CLI로 브라우저 인증 후 `gh auth setup-git`으로 Git 인증 연동 | `gh auth status`에서 로그인 확인 및 `git push -u origin main` 성공 | 해결 완료 | [GitHub 인증 오류 기록](docs/06-troubleshooting.md#2-github-https-push-인증-실패) |
 | 3 | GitHub 웹 업로드 후 push 거부 및 브랜치 분기 | `git merge --no-edit origin/main`으로 원격 이미지와 로컬 문서 변경 통합 | 자동 병합, 이미지 파일 확인 및 push 성공 | 해결 완료 | [브랜치 분기 해결 기록](docs/06-troubleshooting.md#3-github-웹-업로드-후-push-거부-및-브랜치-분기) |
+| 4 | VSCode PowerShell에서 Git 미인식 | WSL 통합 Bash로 연결해 Ubuntu Git과 프로젝트 조회 | `/usr/bin/git`, Git 2.53.0, 프로젝트 루트·main·원격 확인 | 해결 완료 | [실행 환경 오류 기록](docs/06-troubleshooting.md#4-vscode의-powershell에서-git-명령을-찾지-못함) |
+| 5 | 공용 VSCode의 타인 GitHub 계정 | 본인 계정으로 다시 로그인하고 CLI 인증·저장소별 작성자 설정 확인 | Asheli1a 계정, CLI 활성 상태, `.git/config`의 작성자 확인 | 전환·설정 확인 완료 | [계정 확인 기록](docs/06-troubleshooting.md#5-공용-노트북의-vscode에-타인-github-계정이-로그인됨) |
+| 6 | `code .` 실행 중 서버 설치 실패 | 저장 완료와 최종 실패 메시지를 함께 기록, 현재 동작하는 WSL 창 사용 | 현재 WSL Git 정상이나 해당 설치 경로의 복구는 미확인 | 원인 미확인 | [설치 실패 기록](docs/06-troubleshooting.md#6-code-실행-중-vs-code-server-설치-실패) |
 
 ### 해결 과정에서 확인한 점
 
@@ -234,6 +237,9 @@ Git은 로컬에서 변경 이력과 브랜치를 관리하는 도구이고, Git
 - GitHub 웹과 로컬에서 각각 커밋하면 이력이 분기될 수 있다.
   이번에는 실제 파일 충돌 없이 merge로 통합했다.
 - 캡처와 관련 문서를 로컬에서 함께 커밋하는 방식으로 이후 작업 흐름을 통일한다.
+- WSL 폴더를 열었다는 사실과 명령 실행 환경이 WSL이라는 사실은 다르다. VSCode의 통합 Bash에서 Linux·Git 경로를 함께 확인했다.
+- 공용 장비에서는 VSCode 계정·CLI 인증·Git 작성자 정보를 각각 확인했다. 저장소별 작성자 설정은 인증 계정 전환을 대신하지 않는다.
+- 서버 파일 저장 완료만으로 설치 성공을 단정하지 않았다. 현재 WSL 세션 정상 동작과 실패한 `code .` 경로의 복구 여부는 구분했다.
 
 ## 8. 보안 점검
 
@@ -243,6 +249,7 @@ Git은 로컬에서 변경 이력과 브랜치를 관리하는 도구이고, Git
 - [ ] Git 설정 출력과 원격 URL에 민감정보가 없는지 확인했다.
 - [ ] 캡처의 다른 창·탭·알림도 검토했다.
 - [ ] 비밀정보 파일이 커밋 대상에 없는지 확인했다.
+- [ ] 공용 장비 반납 시 본인 VSCode·CLI·브라우저 인증과 동기화 상태를 확인·정리했다.
 
 ## 9. 보너스 과제
 
@@ -256,8 +263,9 @@ Git은 로컬에서 변경 이력과 브랜치를 관리하는 도구이고, Git
 
 ## 10. 남은 필수 확인
 
-1. Git 사용자 이름·noreply 이메일·기본 브랜치 설정 및 `git config --list` 결과를 민감정보 검토 후 05 문서에 기록한다.
-2. VSCode에서 GitHub 계정 로그인과 이 프로젝트 저장소 연동 증거를 확보한다.
+1. 확인된 Git 사용자 이름·noreply 이메일·기본 브랜치 및 저장소별 설정 출처를 05 문서에 반영하고, 기존 `git config --list` 기록과 최종 설정의 차이를 확인한다.
+2. 확보한 VSCode 본인 계정·WSL 저장소·CLI 인증 캡처를 05 문서에도 연결하고, 06 문서의 최신 검증 결과와 일치하는지 확인한다.
 3. Dockerfile·site·이미지 파일과 모든 문서 링크가 실제 저장소에 있는지 확인한다.
 4. 이번에 별도로 완성한 docs/04-storage.md를 유지하고 최신 결과와 README 체크리스트를 함께 반영한다.
 5. 새 환경에서 재현 절차를 점검하고 저장소 전체 보안 검토 후 제출한다.
+6. 외부 `code .`의 서버 설치 실패는 원인 미확인으로 남아 있으므로, 재발 시 로그를 수집하고 실행 진입 경로의 재현성을 확인한다.
