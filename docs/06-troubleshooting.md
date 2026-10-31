@@ -373,7 +373,7 @@ Ubuntu의 프로젝트 경로를 열었지만 VSCode 통합 터미널은 Windows
 아래는 오류 로그의 핵심 부분만 발췌한 것이다.
 
 ```console
-PS Microsoft.PowerShell.Core\FileSystem::\wsl.localhost\Ubuntu\home\user\dev-workstation> git rev-parse --show-toplevel
+PS Microsoft.PowerShell.Core\FileSystem::\\wsl.localhost\Ubuntu\home\user\dev-workstation> git rev-parse --show-toplevel
 git : 'git' 용어가 cmdlet, 함수, 스크립트 파일 또는 실행할 수 있는 프로그램 이름으로 인식되지 않습니다.
 ```
 
@@ -383,7 +383,8 @@ git : 'git' 용어가 cmdlet, 함수, 스크립트 파일 또는 실행할 수 �
 
 - 폴더 위치는 WSL Ubuntu였지만 명령을 해석한 프로세스는 Windows PowerShell이었다.
 - Ubuntu에 설치된 Git이 Windows PowerShell에서도 자동으로 같은 명령으로 실행된다고 볼 수는 없다.
-- 당시 Windows의 PATH에 Git이 없다는 오류가 확인됐지만, Windows 전체에 Git이 전혀 설치되지 않았다고까지 단정하지 않는다.
+- 해당 Windows PowerShell 세션에서 `git` 명령을 찾지 못했다.
+  Windows의 Git 설치 여부와 PATH 설정 자체는 별도로 조사하지 않았으며, 이번에는 WSL Ubuntu의 Git을 사용하는 방식으로 해결했다.
 - 과제의 실행 환경을 WSL로 통일하는 것이 이번 해결 방향이었다.
 
 ### 해결
