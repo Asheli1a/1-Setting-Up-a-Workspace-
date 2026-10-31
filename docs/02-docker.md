@@ -1,454 +1,251 @@
-\# Docker 설치 및 운영 실습
+# Docker 설치 및 운영 실습
 
+## 실습 개요
 
+Windows / WSL / Ubuntu / 쉘 / Git / Docker 환경을 확인하고, 이미지·컨테이너 운영 및 주 프로세스의 수명과 연결 세션의 차이를 관찰했다.
 
-\## 실행 환경
+- 환경 점검: 2026-10-29 / Ubuntu 컨테이너 운영 실습: 2026-10-30
+- 호스트 명령은 `$`, 컨테이너 내부 명령은 `root@...:/#`, PowerShell 명령은 `PS>`로 구분한다.
+- 제목·코드에 잘못 적용된 이스케이프와 HTML 엔터티는 원래 표기로 정리했다. 상태·ID·버전은 당시 관찰값이다.
+- 설치 절차 전체의 원시 로그는 제공되지 않았다. 아래는 설치 후 점검과 운영 검증이며, 설치 과정 전체를 새 실행 로그처럼 작성하지 않았다.
 
+## 실행 환경
 
-
-\### 1. Windows 및 WSL
-
-
+### 1. Windows 및 WSL
 
 실행 위치: Windows PowerShell
 
-
-
 ```console
-
-PS> Get-CimInstance Win32\_OperatingSystem | Select-Object Caption, Version, BuildNumber
-
-
-
+PS> Get-CimInstance Win32_OperatingSystem | Select-Object Caption, Version, BuildNumber
 Caption                  Version    BuildNumber
-
-\-------                  -------    -----------
-
+-------                  -------    -----------
 Microsoft Windows 11 Pro 10.0.26300 26300
 
-
-
 PS> wsl --version
-
 WSL 버전: 3.0.3.0
-
 커널 버전: 6.18.54.1-1
-
 WSLg 버전: 1.0.79
-
 MSRDC 버전: 1.2.7391
-
 Direct3D 버전: 1.611.1-81528511
-
 DXCore 버전: 10.0.26100.1-240331-1435.ge-release
-
 Windows 버전: 10.0.26300.9711
 
-
-
 PS> wsl -l -v
-
-&#x20; NAME              STATE           VERSION
-
-\* Ubuntu            Running         2
-
-&#x20; docker-desktop    Running         2
-
+  NAME              STATE           VERSION
+* Ubuntu            Running         2
+  docker-desktop    Running         2
 ```
 
-
-
-\### 2. Ubuntu 및 쉘
-
-
+### 2. Ubuntu 및 쉘
 
 실행 위치: WSL Ubuntu
 
-
-
 ```console
-
 $ date -Iseconds
-
 2026-10-29T17:06:52+09:00
 
-
-
 $ cat /etc/os-release
-
-PRETTY\_NAME="Ubuntu 26.04.1 LTS"
-
+PRETTY_NAME="Ubuntu 26.04.1 LTS"
 NAME="Ubuntu"
-
-VERSION\_ID="26.04"
-
+VERSION_ID="26.04"
 VERSION="26.04.1 LTS (Resolute Raccoon)"
-
-VERSION\_CODENAME=resolute
-
+VERSION_CODENAME=resolute
 ID=ubuntu
-
-ID\_LIKE=debian
-
-HOME\_URL="https://www.ubuntu.com/"
-
-SUPPORT\_URL="https://help.ubuntu.com/"
-
-BUG\_REPORT\_URL="https://bugs.launchpad.net/ubuntu/"
-
-PRIVACY\_POLICY\_URL="https://www.ubuntu.com/legal/terms-and-policies/privacy-policy"
-
-UBUNTU\_CODENAME=resolute
-
+ID_LIKE=debian
+HOME_URL="https://www.ubuntu.com/"
+SUPPORT_URL="https://help.ubuntu.com/"
+BUG_REPORT_URL="https://bugs.launchpad.net/ubuntu/"
+PRIVACY_POLICY_URL="https://www.ubuntu.com/legal/terms-and-policies/privacy-policy"
+UBUNTU_CODENAME=resolute
 LOGO=ubuntu-logo
 
-user@4F-103:\~/dev-workstation$ uname -r
-
-6.18.54.1-microsoft-standard-WSL2
-
-user@4F-103:\~/dev-workstation$ ps -p $$ -o comm=
-
-bash
-
-
-
 $ uname -r
-
 6.18.54.1-microsoft-standard-WSL2
-
-
 
 $ ps -p $$ -o comm=
-
 bash
 
-
-
-$ printf 'Bash version: %s\\n' "$BASH\_VERSION"
-
+$ printf 'Bash version: %s\n' "$BASH_VERSION"
 Bash version: 5.3.9(1)-release
-
 ```
 
-
-
-\### 3. Git
-
-
+### 3. Git
 
 ```console
-
 $ git --version
-
 git version 2.53.0
-
 ```
 
-
-
-\### 4. Docker
-
-
+### 4. Docker
 
 ```console
-
 $ docker --version
-
 Docker version 29.9.2, build a82e528
 
-
-
 $ docker version
-
 Client:
-
-&#x20;Version:           29.9.2
-
-&#x20;API version:       1.56
-
-&#x20;Go version:        go1.26.10
-
-&#x20;Git commit:        a82e528
-
-&#x20;Built:             Tue Oct 20 18:44:02 2026
-
-&#x20;OS/Arch:           linux/amd64
-
-&#x20;Context:           default
-
-
-
+ Version:           29.9.2
+ API version:       1.56
+ Go version:        go1.26.10
+ Git commit:        a82e528
+ Built:             Tue Oct 20 18:44:02 2026
+ OS/Arch:           linux/amd64
+ Context:           default
 Server: Docker Desktop 4.97.0 (244584)
-
-&#x20;Engine:
-
-&#x20; Version:          29.9.2
-
-&#x20; API version:      1.56 (minimum version 1.40)
-
-&#x20; Go version:       go1.26.10
-
-&#x20; Git commit:       0367cbe
-
-&#x20; Built:            Tue Oct 20 18:45:02 2026
-
-&#x20; OS/Arch:          linux/amd64
-
-&#x20; Experimental:     false
-
-&#x20;containerd:
-
-&#x20; Version:          v2.4.2
-
-&#x20; GitCommit:        b7a25261e029d68978bbf290df0a62fc819b3c51
-
-&#x20;runc:
-
-&#x20; Version:          1.5.2
-
-&#x20; GitCommit:        v1.5.2-0-g29dd3dc2
-
-&#x20;docker-init:
-
-&#x20; Version:          0.19.0
-
-&#x20; GitCommit:        de40ad0
-
-
+ Engine:
+  Version:          29.9.2
+  API version:      1.56 (minimum version 1.40)
+  Go version:       go1.26.10
+  Git commit:       0367cbe
+  Built:            Tue Oct 20 18:45:02 2026
+  OS/Arch:          linux/amd64
+  Experimental:     false
+ containerd:
+  Version:          v2.4.2
+  GitCommit:        b7a25261e029d68978bbf290df0a62fc819b3c51
+ runc:
+  Version:          1.5.2
+  GitCommit:        v1.5.2-0-g29dd3dc2
+ docker-init:
+  Version:          0.19.0
+  GitCommit:        de40ad0
 
 $ docker info
-
 Client:
-
-&#x20;Version:    29.9.2
-
-&#x20;Context:    default
-
-&#x20;Debug Mode: false
-
-&#x20;Plugins:
-
-&#x20; agent: Docker AI Agent Runner (Docker Inc.)
-
-&#x20;   Version:  v1.152.0
-
-&#x20;   Path:     /usr/local/lib/docker/cli-plugins/docker-agent
-
-&#x20; ai: Docker AI Agent - Ask Gordon (Docker Inc.)
-
-&#x20;   Version:  v1.33.0
-
-&#x20;   Path:     /usr/local/lib/docker/cli-plugins/docker-ai
-
-&#x20; buildx: Docker Buildx (Docker Inc.)
-
-&#x20;   Version:  v0.38.1
-
-&#x20;   Path:     /usr/local/lib/docker/cli-plugins/docker-buildx
-
-&#x20; compose: Docker Compose (Docker Inc.)
-
-&#x20;   Version:  v5.6.1
-
-&#x20;   Path:     /usr/local/lib/docker/cli-plugins/docker-compose
-
-&#x20; debug: Get a shell into any image or container (Docker Inc.)
-
-&#x20;   Version:  0.49.0
-
-&#x20;   Path:     /usr/local/lib/docker/cli-plugins/docker-debug
-
-&#x20; desktop: Docker Desktop commands (Docker Inc.)
-
-&#x20;   Version:  4.97.0
-
-&#x20;   Path:     /usr/local/lib/docker/cli-plugins/docker-desktop
-
-&#x20; dhi: CLI for managing Docker Hardened Images (Docker Inc.)
-
-&#x20;   Version:  v0.0.9
-
-&#x20;   Path:     /usr/local/lib/docker/cli-plugins/docker-dhi
-
-&#x20; extension: Manages Docker extensions (Docker Inc.)
-
-&#x20;   Version:  v0.2.32
-
-&#x20;   Path:     /usr/local/lib/docker/cli-plugins/docker-extension
-
-&#x20; init: Creates Docker-related starter files for your project (Docker Inc.)
-
-&#x20;   Version:  v1.4.1
-
-&#x20;   Path:     /usr/local/lib/docker/cli-plugins/docker-init
-
-&#x20; mcp: Docker MCP Plugin (Docker Inc.)
-
-&#x20;   Version:  v0.44.2
-
-&#x20;   Path:     /usr/local/lib/docker/cli-plugins/docker-mcp
-
-&#x20; model: Docker Model Runner (Docker Inc.)
-
-&#x20;   Version:  v1.2.9
-
-&#x20;   Path:     /usr/local/lib/docker/cli-plugins/docker-model
-
-&#x20; offload: Docker Offload (Docker Inc.)
-
-&#x20;   Version:  v0.7.21
-
-&#x20;   Path:     /usr/local/lib/docker/cli-plugins/docker-offload
-
-&#x20; pass: Docker Pass Secrets Manager Plugin (beta) (Docker Inc.)
-
-&#x20;   Version:  v0.3.2
-
-&#x20;   Path:     /usr/local/lib/docker/cli-plugins/docker-pass
-
-&#x20; sandbox: "docker sandbox" is deprecated, use Docker Sandboxes instead (Docker Inc.)
-
-&#x20;   Version:  v0.13.0
-
-&#x20;   Path:     /usr/local/lib/docker/cli-plugins/docker-sandbox
-
-&#x20; scout: Docker Scout (Docker Inc.)
-
-&#x20;   Version:  v1.27.0
-
-&#x20;   Path:     /usr/local/lib/docker/cli-plugins/docker-scout
-
-
-
+ Version:    29.9.2
+ Context:    default
+ Debug Mode: false
+ Plugins:
+  agent: Docker AI Agent Runner (Docker Inc.)
+    Version:  v1.152.0
+    Path:     /usr/local/lib/docker/cli-plugins/docker-agent
+  ai: Docker AI Agent - Ask Gordon (Docker Inc.)
+    Version:  v1.33.0
+    Path:     /usr/local/lib/docker/cli-plugins/docker-ai
+  buildx: Docker Buildx (Docker Inc.)
+    Version:  v0.38.1
+    Path:     /usr/local/lib/docker/cli-plugins/docker-buildx
+  compose: Docker Compose (Docker Inc.)
+    Version:  v5.6.1
+    Path:     /usr/local/lib/docker/cli-plugins/docker-compose
+  debug: Get a shell into any image or container (Docker Inc.)
+    Version:  0.49.0
+    Path:     /usr/local/lib/docker/cli-plugins/docker-debug
+  desktop: Docker Desktop commands (Docker Inc.)
+    Version:  4.97.0
+    Path:     /usr/local/lib/docker/cli-plugins/docker-desktop
+  dhi: CLI for managing Docker Hardened Images (Docker Inc.)
+    Version:  v0.0.9
+    Path:     /usr/local/lib/docker/cli-plugins/docker-dhi
+  extension: Manages Docker extensions (Docker Inc.)
+    Version:  v0.2.32
+    Path:     /usr/local/lib/docker/cli-plugins/docker-extension
+  init: Creates Docker-related starter files for your project (Docker Inc.)
+    Version:  v1.4.1
+    Path:     /usr/local/lib/docker/cli-plugins/docker-init
+  mcp: Docker MCP Plugin (Docker Inc.)
+    Version:  v0.44.2
+    Path:     /usr/local/lib/docker/cli-plugins/docker-mcp
+  model: Docker Model Runner (Docker Inc.)
+    Version:  v1.2.9
+    Path:     /usr/local/lib/docker/cli-plugins/docker-model
+  offload: Docker Offload (Docker Inc.)
+    Version:  v0.7.21
+    Path:     /usr/local/lib/docker/cli-plugins/docker-offload
+  pass: Docker Pass Secrets Manager Plugin (beta) (Docker Inc.)
+    Version:  v0.3.2
+    Path:     /usr/local/lib/docker/cli-plugins/docker-pass
+  sandbox: "docker sandbox" is deprecated, use Docker Sandboxes instead (Docker Inc.)
+    Version:  v0.13.0
+    Path:     /usr/local/lib/docker/cli-plugins/docker-sandbox
+  scout: Docker Scout (Docker Inc.)
+    Version:  v1.27.0
+    Path:     /usr/local/lib/docker/cli-plugins/docker-scout
 Server:
-
-&#x20;Containers: 1
-
-&#x20; Running: 0
-
-&#x20; Paused: 0
-
-&#x20; Stopped: 1
-
-&#x20;Images: 1
-
-&#x20;Server Version: 29.9.2
-
-&#x20;Storage Driver: overlayfs
-
-&#x20; driver-type: io.containerd.snapshotter.v1
-
-&#x20;Logging Driver: local
-
-&#x20;Cgroup Driver: cgroupfs
-
-&#x20;Cgroup Version: 2
-
-&#x20;Plugins:
-
-&#x20; Volume: local
-
-&#x20; Network: bridge host ipvlan macvlan null overlay
-
-&#x20; Log: awslogs fluentd gcplogs gelf journald json-file local splunk syslog
-
-&#x20;CDI spec directories:
-
-&#x20; /etc/cdi
-
-&#x20; /var/run/cdi
-
-&#x20;Discovered Devices:
-
-&#x20; cdi: docker.com/gpu=webgpu
-
-&#x20;Swarm: inactive
-
-&#x20;Runtimes: io.containerd.runc.v2 nvidia runc
-
-&#x20;Default Runtime: runc
-
-&#x20;Init Binary: docker-init
-
-&#x20;containerd version: b7a25261e029d68978bbf290df0a62fc819b3c51
-
-&#x20;runc version: v1.5.2-0-g29dd3dc2
-
-&#x20;init version: de40ad0
-
-&#x20;Security Options:
-
-&#x20; seccomp
-
-&#x20;  Profile: builtin
-
-&#x20; cgroupns
-
-&#x20;Kernel Version: 6.18.54.1-microsoft-standard-WSL2
-
-&#x20;Operating System: Docker Desktop
-
-&#x20;OSType: linux
-
-&#x20;Architecture: x86\_64
-
-&#x20;CPUs: 8
-
-&#x20;Total Memory: 7.605GiB
-
-&#x20;Name: docker-desktop
-
-&#x20;ID: debdbb45-0f13-4be0-a40e-3410badffff0
-
-&#x20;Docker Root Dir: /var/lib/docker
-
-&#x20;Debug Mode: false
-
-&#x20;HTTP Proxy: http.docker.internal:3128
-
-&#x20;HTTPS Proxy: http.docker.internal:3128
-
-&#x20;No Proxy: hubproxy.docker.internal
-
-&#x20;Labels:
-
-&#x20; com.docker.desktop.address=unix:///var/run/docker-cli.sock
-
-&#x20;Experimental: false
-
-&#x20;Insecure Registries:
-
-&#x20; hubproxy.docker.internal:5555
-
-&#x20; 127.0.0.0/8
-
-&#x20; ::1/128
-
-&#x20;Live Restore Enabled: false
-
-&#x20;Firewall Backend: iptables
-
-
-
+ Containers: 1
+  Running: 0
+  Paused: 0
+  Stopped: 1
+ Images: 1
+ Server Version: 29.9.2
+ Storage Driver: overlayfs
+  driver-type: io.containerd.snapshotter.v1
+ Logging Driver: local
+ Cgroup Driver: cgroupfs
+ Cgroup Version: 2
+ Plugins:
+  Volume: local
+  Network: bridge host ipvlan macvlan null overlay
+  Log: awslogs fluentd gcplogs gelf journald json-file local splunk syslog
+ CDI spec directories:
+  /etc/cdi
+  /var/run/cdi
+ Discovered Devices:
+  cdi: docker.com/gpu=webgpu
+ Swarm: inactive
+ Runtimes: io.containerd.runc.v2 nvidia runc
+ Default Runtime: runc
+ Init Binary: docker-init
+ containerd version: b7a25261e029d68978bbf290df0a62fc819b3c51
+ runc version: v1.5.2-0-g29dd3dc2
+ init version: de40ad0
+ Security Options:
+  seccomp
+   Profile: builtin
+  cgroupns
+ Kernel Version: 6.18.54.1-microsoft-standard-WSL2
+ Operating System: Docker Desktop
+ OSType: linux
+ Architecture: x86_64
+ CPUs: 8
+ Total Memory: 7.605GiB
+ Name: docker-desktop
+ ID: debdbb45-0f13-4be0-a40e-3410badffff0
+ Docker Root Dir: /var/lib/docker
+ Debug Mode: false
+ HTTP Proxy: http.docker.internal:3128
+ HTTPS Proxy: http.docker.internal:3128
+ No Proxy: hubproxy.docker.internal
+ Labels:
+  com.docker.desktop.address=unix:///var/run/docker-cli.sock
+ Experimental: false
+ Insecure Registries:
+  hubproxy.docker.internal:5555
+  127.0.0.0/8
+  ::1/128
+ Live Restore Enabled: false
+ Firewall Backend: iptables
 ```
 
+### 검증 결과
 
+- Ubuntu가 WSL 2로 실행 중임을 확인했다.
 
-\### 검증 결과
+- Ubuntu, 커널, Bash, Git 버전을 확인했다.
 
+- Docker Desktop, CLI, Engine 버전을 각각 확인했다.
 
+- docker version과 docker info에서 Server 정보가 정상 출력됐다.
 
-\- Ubuntu가 WSL 2로 실행 중임을 확인했다.
+- 이번 점검에서는 Docker 소켓 접근 권한 오류가 발생하지 않았다.
 
-\- Ubuntu, 커널, Bash, Git 버전을 확인했다.
+## hello-world 실행 검증
 
-\- Docker Desktop, CLI, Engine 버전을 각각 확인했다.
+초기 Docker 소켓 오류 해결 후 수행한 실제 기록을 [트러블슈팅 사례 1](06-troubleshooting.md#1-docker-소켓-접근-권한-오류)에서 핵심 부분만 발췌했다. 아래 생략 표시는 편집 표시다.
 
-\- docker version과 docker info에서 Server 정보가 정상 출력됐다.
+```console
+$ docker run hello-world
+Unable to find image 'hello-world:latest' locally
+latest: Pulling from library/hello-world
+[이미지 다운로드 진행 출력 생략]
+Status: Downloaded newer image for hello-world:latest
 
-\- 이번 점검에서는 Docker 소켓 접근 권한 오류가 발생하지 않았다.
+Hello from Docker!
+This message shows that your installation appears to be working correctly.
+[안내 문구 생략]
+```
 
-
+Docker 엔진 연결뿐 아니라 이미지 다운로드와 테스트 컨테이너 실행까지 성공했다.
 
 ## 이미지 다운로드 및 목록 확인
 ```console
@@ -519,10 +316,10 @@ c83798db7dd1   hello-world     "/hello"   25 hours ago             Exited (0) 25
 - `docker ps`의 `Up` 상태로 실행 중임을 확인했다.
 - `docker ps -a`에서는 실행 중인 Ubuntu뿐 아니라 종료된 hello-world도 확인했다.
 
-
 ## exec를 통한 내부 명령 실행
 ```console
 $ cd ~/dev-workstation
+
 $ pwd
 /home/user/dev-workstation
 
@@ -570,10 +367,10 @@ $ pwd
 - 이후 `docker ps`에서 `workspace-ubuntu`가 `Up` 상태임을 확인했다.
 - 따라서 이번 구성에서는 exec로 실행한 Bash 종료가 컨테이너 종료로 이어지지 않았다.
 
-
 ## attach와 연결 분리
 ```console
 $ cd ~/dev-workstation
+
 $ pwd
 /home/user/dev-workstation
 
@@ -605,7 +402,6 @@ $ pwd
 - `workspace-ubuntu`는 `Up 22 minutes` 상태였다.
 - 따라서 이번 연결 분리는 주 Bash나 컨테이너를 종료하지 않았다.
 
-
 ## 로그 및 리소스 확인
 
 실행 위치: `~/dev-workstation`
@@ -632,13 +428,13 @@ ba7726aba893   workspace-ubuntu   0.00%     9.543MiB / 7.605GiB   0.12%     1.7k
 
 - 주 Bash에서 실행한 명령과 출력이 컨테이너 로그에 남아 있음을 확인했다.
 - `docker stats --no-stream`으로 리소스 정보를 확인했다.
-- 측정 시 CPU 사용률은 0.00% (CPU 부하를 걸만한 작업을 실행하지 않아 0.00X% 이하에서 반올림/버림 처리된 것으로 추정), 메모리 사용량은 9.543MiB였다.
+- 측정 시 표시된 CPU 사용률은 0.00%, 메모리 사용량은 9.543MiB였다. 표시 정밀도와 반올림·버림 방식은 별도로 확인하지 않았다.
 - 수치는 이번 실습에서 측정한 시점의 결과다.
-
 
 ## 중지 및 재시작
 ```console
 $ cd ~/dev-workstation
+
 $ pwd
 /home/user/dev-workstation
 
@@ -677,7 +473,6 @@ $ pwd
 종료 코드는 137이었다. Docker 문서상 SIGKILL에 의한 종료에 해당한다.(docker stop은 기본적으로 먼저 SIGTERM을 보내고, 유예 시간 안에 종료되지 않으면 SIGKILL로 강제 종료한다.)
 이번에는 docker stop 과정에서 주 프로세스가 유예 시간 내 종료되지 않아 강제 종료됐을 가능성이 있으나, 신호 처리 과정 자체를 추가 검증하지는 않았다.
 
-
 ## 주 프로세스 종료와 컨테이너 상태
 ```console
 $ pwd
@@ -686,7 +481,6 @@ $ pwd
 $ docker attach workspace-ubuntu
 root@ba7726aba893:/# echo "Exiting the main shell"
 Exiting the main shell
-
 root@ba7726aba893:/# exit
 exit
 
@@ -735,3 +529,29 @@ $ pwd
 - 연결 분리는 주 프로세스를 종료하지 않는다.
 - 이번 구성에서는 주 Bash가 종료되면 컨테이너도 종료됐다.
 - stop 이후에는 같은 컨테이너를 start로 다시 실행할 수 있었다.
+
+## 검증 요약 및 재현 주의사항
+
+| 항목 | 관찰 결과 |
+|---|---|
+| WSL 소프트웨어 버전 | 3.0.3.0 |
+| Ubuntu 배포판 실행 방식 | WSL 2 — 소프트웨어 버전의 3과 구분 |
+| Docker Desktop / CLI / Engine | 4.97.0 / 29.9.2 / 29.9.2 |
+| hello-world | 실행 성공 |
+| 이미지 다운로드·목록 | ubuntu:latest / 당시 표시 ID 6a06111c3b0a |
+| 컨테이너 주 프로세스 | workspace-ubuntu의 bash / PID 1 |
+| exec Bash에서 exit | 주 프로세스 유지, 컨테이너 Up |
+| attach 후 분리 키 | 연결만 분리, 컨테이너 Up |
+| stop 및 start | Exited (137) 후 동일 ID로 Up |
+| 주 Bash에서 exit | Exited (0) |
+| 로그·리소스 | 주 Bash 출력 및 측정 시 CPU 0.00%, 메모리 9.543MiB |
+
+- WSL Ubuntu의 배포판 버전과 컨테이너 내부 Ubuntu 버전은 각각 확인했다. 이번에는 같았지만 서로 다른 실행 환경이다.
+- `docker info`의 CPU·메모리 값은 Docker 엔진이 보는 자원이며, PC 전체의 물리 사양을 확정하는 값으로 사용하지 않는다.
+- `read escape sequence`는 연결 분리 과정의 표시이며 직접 입력한 셸 명령이 아니다.
+- `Exited (137)`은 SIGKILL에 의한 종료와 부합한다. stop 유예 시간 후 강제 종료 가능성은 있지만 당시 신호·이벤트/OOM 자료는 수집하지 않았으므로 구체 원인은 단정하지 않는다.
+- `Exited (0)`은 주 Bash가 정상 종료 코드를 반환한 관찰 결과다.
+- 같은 컨테이너 이름이 있으면 새로 run하기 전에 상태를 확인한다. 기존 컨테이너를 임의로 삭제하지 않는다.
+- 기록된 리소스·실행 시간·이미지 ID는 역사적 관찰값이며 현재 상태나 재실행 결과가 같다는 보장은 없다.
+
+[웹 이미지 제작](03-web.md) · [스토리지 실험](04-storage.md) · [트러블슈팅](06-troubleshooting.md) · [프로젝트 README](../README.md)

@@ -1,5 +1,10 @@
 # 커스텀 웹 서버 이미지 및 포트 매핑
 
+- 수행 일자: 2026-10-30
+- 실행 위치: WSL Ubuntu의 `~/dev-workstation`
+- 이 문서는 당시의 실제 빌드·실행·접속 기록이다. 재현 명령은 README, 호스트 파일 변경 검증은 04-storage.md에 분리했다.
+- 로그의 시각·버전·이미지/컨테이너 ID는 당시 값이다. 이미지 태그는 재사용될 수 있으므로 기록된 값과 구분한다.
+
 ## 1. 목적
 NGINX 기반 커스텀 이미지를 만들고,
 직접 작성한 웹 페이지의 포트 매핑 접속을 검증한다.
@@ -13,9 +18,9 @@ NGINX 기반 커스텀 이미지를 만들고,
 | LABEL | Asheli1a Workspace Web | 이미지 식별 정보 추가 |
 | 서비스 포트 | 80/tcp | 컨테이너의 웹 서비스 포트 명시 |
 
-[웹 소스](../site/index.html)
-[Dockerfile](../Dockerfile)
-[빌드 제외 설정](../.dockerignore)
+- [웹 소스](../site/index.html)
+- [Dockerfile](../Dockerfile)
+- [빌드 제외 설정](../.dockerignore)
 
 ## 3. 소스 및 설정 확인
 ```console
@@ -66,7 +71,6 @@ README.md
 ```
 이번 웹 이미지 빌드에 필요 없는 Git 이력·문서·기본 실습 파일을 빌드 컨텍스트에서 제외하도록 구성
 
-
 ## 4. 이미지 빌드 및 목록 확인
 ```console
 $ docker build -t workspace-web:1.0 .
@@ -110,7 +114,7 @@ $ docker images workspace-web
                                                                                                     i Info →   U  In Use
 IMAGE               ID             DISK USAGE   CONTENT SIZE   EXTRA
 workspace-web:1.0   e95b34537b19       93.6MB         26.3MB
-user@4F-103:~/dev-workstation$ docker ps -a
+$ docker ps -a
 CONTAINER ID   IMAGE           COMMAND    CREATED             STATUS                      PORTS     NAMES
 ba7726aba893   ubuntu:latest   "bash"     About an hour ago   Exited (0) 20 minutes ago             workspace-ubuntu
 c83798db7dd1   hello-world     "/hello"   26 hours ago        Exited (0) 26 hours ago               ecstatic_shamir
@@ -185,7 +189,6 @@ $ docker logs --tail 20 workspace-web-8080
 - NGINX 로그에서 해당 요청의 200 응답을 확인했다.
 - Windows 브라우저에서도 같은 페이지와 콘텐츠 버전 v1을 확인했다.
 
-
 ## 6. 8081 포트 실행 및 접속 검증
 ```console
 $ docker run -d \
@@ -193,11 +196,11 @@ $ docker run -d \
   -p 127.0.0.1:8081:80 \
   workspace-web:1.0
 f503d339f6a56a90557b90238a3ca6c409f8ce47cf24bab6e0df4b6ddd9132df
-user@4F-103:~/dev-workstation$ docker ps --filter ancestor=workspace-web:1.0
+$ docker ps --filter ancestor=workspace-web:1.0
 CONTAINER ID   IMAGE               COMMAND                  CREATED          STATUS          PORTS                    NAMES
 f503d339f6a5   workspace-web:1.0   "/docker-entrypoint.…"   6 seconds ago    Up 5 seconds    127.0.0.1:8081->80/tcp   workspace-web-8081
 57d352ca3790   workspace-web:1.0   "/docker-entrypoint.…"   16 minutes ago   Up 16 minutes   127.0.0.1:8080->80/tcp   workspace-web-8080
-user@4F-103:~/dev-workstation$ curl -i http://localhost:8081
+$ curl -i http://localhost:8081
 HTTP/1.1 200 OK
 Server: nginx/1.31.8
 Date: Fri, 30 Oct 2026 09:08:04 GMT
@@ -231,7 +234,6 @@ Accept-Ranges: bytes
 - 8081에서도 HTTP 200 응답과 직접 작성한 HTML을 확인했다.
 - Windows 브라우저에서 localhost:8081에 접속하여 동일한 페이지와 콘텐츠 버전 v1을 확인했다.
 
-
 ## 7. 결과 해석
 
 ### 커스텀 이미지 제작
@@ -260,3 +262,26 @@ Accept-Ranges: bytes
 - localhost:8081 → workspace-web-8081의 80번 포트
 
 두 컨테이너 모두 내부에서는 80번 포트를 사용했지만, 호스트에서는 8080과 8081로 구분하여 동시에 접속했다.
+
+## 8. 검증 요약 및 재현 주의사항
+
+| 검증 항목 | 실제 결과 |
+|---|---|
+| 커스텀 이미지 빌드 | workspace-web:1.0 / 당시 표시 ID e95b34537b19 |
+| 웹 서버 버전 | HTTP 응답 및 로그에서 nginx/1.31.8 |
+| 8080 | 127.0.0.1:8080 → 80/tcp / HTTP 200 / v1 |
+| 8081 | 127.0.0.1:8081 → 80/tcp / HTTP 200 / v1 |
+| 두 컨테이너 동시 실행 | 서로 다른 ID, 같은 이미지 태그 |
+| 브라우저 증거 | 주소창·포트와 콘텐츠를 포함한 PNG 링크 |
+
+- 컨테이너 내부 80번 포트는 공통으로 사용했고, 호스트 포트 8080·8081을 나누어 접속했다.
+- `127.0.0.1` 바인딩으로 로컬 실습용 공개 범위를 지정했다.
+- `EXPOSE 80`은 NGINX의 포트를 80으로 변경하는 설정이 아니며 호스트 포트 공개도 수행하지 않는다. 이번 베이스 이미지의 웹 포트가 80이라는 전제와 run의 -p 설정을 함께 사용했다.
+- `.dockerignore`는 Docker 빌드 컨텍스트 제외 설정이다. Git 추적 제외는 별도의 `.gitignore`에서 관리한다.
+- 태그 `nginx:alpine`은 나중에 다른 이미지로 바뀔 수 있다. 빌드 로그에 보이는 digest는 터미널에서 잘린 형태이므로 완전한 digest 고정값으로 복사해 사용하지 않는다.
+- HTML 본문의 실명은 공개 콘텐츠에 포함돼 있다. 공개 여부는 작성자가 확인해야 하며 보안·개인정보 검토 완료로 간주하지 않는다.
+- 이후 수행한 바인드 마운트 실험은 원본 site/index.html이 아니라 별도 복사본을 변경했다.
+- 같은 이름의 컨테이너 또는 사용 중인 호스트 포트가 있으면 충돌할 수 있다. 상태를 먼저 확인하고 이름·포트를 조정한다.
+- 연결한 소스 파일·PNG 이미지의 실제 저장소 존재 여부는 최종 제출 시 별도로 확인한다.
+
+[바인드 마운트 및 볼륨 실험](04-storage.md) · [프로젝트 README](../README.md)
