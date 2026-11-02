@@ -1,0 +1,14 @@
+services:
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: workspace-web:compose-multi
+    ports:
+      - "127.0.0.1:18083:80"
+
+  client:
+    image: busybox:latest
+    command: ["sleep", "86400"]
+    depends_on:
+      - web

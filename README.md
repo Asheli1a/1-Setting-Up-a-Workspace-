@@ -50,6 +50,7 @@
 | [05-git-github](docs/05-git-github.md) | Git 설정·GitHub·VSCode | 실제 설정·로그인 및 상세 문서 최신 반영 확인 완료 |
 | [06-troubleshooting](docs/06-troubleshooting.md) | 오류·환경 문제 6건의 분석·대응 | 해결 확인 5건, 서버 설치 실패 1건은 원인 미확인 |
 | [07-compose](docs/07-compose.md) | Compose 단일 서비스·실행·접속·종료 | 단일 서비스 및 up/down/ps/logs 검증 완료 |
+| [08-compose-multi](docs/08-compose-multi.md) | Compose 두 서비스·내부 통신·종료 | 실제 로그 검증 완료 |
 
 실습 기록의 검토 기준은 2026-10-31까지 제공된 파일과 실행 결과이며, 보안 점검·실명 비식별화는 2026-11-02에 추가 반영했다. 문서 편집 완료와 필수 과제 전체 완료는 구분한다. 05 문서는 원격에서 내용과 캡처 링크를 확인했다. 웹 서버는 커밋 ab1ce1a5854d598ea058c41d885a58fb826ff0a5의 별도 clone에서 재현했다.
 
@@ -285,12 +286,14 @@ Git은 로컬에서 변경 이력과 브랜치를 관리하는 도구이고, Git
 권장 순서는 단일 서비스와 운영 명령 → 멀티 컨테이너 통신 → 환경 변수 → SSH 인증이다. 단순히 컨테이너 두 개를 켜거나 환경 변수 값을 출력하는 것만으로 통신·동작 변경 검증을 완료했다고 기록하지 않는다. SSH 개인키는 공용 장비의 보관·정리 정책을 고려하며 저장소에 커밋하지 않는다.
 
 - [x] Compose 단일 서비스
-- [ ] Compose 멀티 컨테이너 및 통신 검증
+- [x] Compose 멀티 컨테이너 및 통신 검증
 - [x] Compose up/down/ps/logs 사용
 - [ ] 환경 변수 변경 검증
 - [ ] GitHub SSH 인증
 
-[Compose 단일 서비스 실행·접속·종료 검증](docs/07-compose.md) — 단일 서비스와 up·ps·logs·down 검증 완료. 멀티 컨테이너·환경 변수·SSH는 별도로 진행한다.
+[Compose 단일 서비스 실행·접속·종료 검증](docs/07-compose.md) — 단일 서비스와 up·ps·logs·down 검증 완료.
+
+[Compose 멀티 컨테이너 통신·종료 검증](docs/08-compose-multi.md) — 두 서비스 실행, client → web 요청, 네트워크·서버 로그 대조, 종료 후 상태 확인 완료. 환경 변수·SSH는 이후 별도로 진행한다.
 
 ## 10. 남은 필수 확인
 
