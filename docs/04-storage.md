@@ -1,5 +1,7 @@
 # 바인드 마운트 및 볼륨 실습
 
+> 공개본 비식별화(2026-11-02): 문서·과거 응답 로그의 실명은 `이XX`로 치환하고, 브라우저 캡처의 실명 영역은 불투명하게 가렸다. 과거 실행의 포트·상태·ID·시각·버전·응답 헤더는 유지했다. 비식별화된 본문은 과거 원문과 길이가 다를 수 있다. 현재 보안 관리 방침은 [README 보안 점검](../README.md#8-보안-점검)을 참조한다.
+
 ## 1. 바인드 마운트 변경 반영
 
 ### 목적
@@ -31,10 +33,10 @@ $ cat cli-practice/bind-site/index.html
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>이준호 개발 작업실</title>
+  <title>이XX 개발 작업실</title>
 </head>
 <body>
-  <h1>이준호의 개발 작업실</h1>
+  <h1>이XX의 개발 작업실</h1>
   <p>직접 만든 Docker 이미지에서 제공하는 웹 페이지입니다. Github Asheli1a</p>
   <p id="version">콘텐츠 버전: v1</p>
 </body>
@@ -103,10 +105,10 @@ Accept-Ranges: bytes
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>이준호 개발 작업실</title>
+  <title>이XX 개발 작업실</title>
 </head>
 <body>
-  <h1>이준호의 개발 작업실</h1>
+  <h1>이XX의 개발 작업실</h1>
   <p>직접 만든 Docker 이미지에서 제공하는 웹 페이지입니다. Github Asheli1a</p>
   <p id="version">콘텐츠 버전: v1</p>
 </body>
@@ -124,10 +126,10 @@ user@4F-103:~/dev-workstation$ cat cli-practice/bind-site/index.html
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>이준호 개발 작업실</title>
+  <title>이XX 개발 작업실</title>
 </head>
 <body>
-  <h1>이준호의 개발 작업실</h1>
+  <h1>이XX의 개발 작업실</h1>
   <p>직접 만든 Docker 이미지에서 제공하는 웹 페이지입니다. Github Asheli1a</p>
   <p id="version">콘텐츠 버전: v2 - 바인드 마운트 반영</p>
 </body>
@@ -162,10 +164,10 @@ Accept-Ranges: bytes
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>이준호 개발 작업실</title>
+  <title>이XX 개발 작업실</title>
 </head>
 <body>
-  <h1>이준호의 개발 작업실</h1>
+  <h1>이XX의 개발 작업실</h1>
   <p>직접 만든 Docker 이미지에서 제공하는 웹 페이지입니다. Github Asheli1a</p>
   <p id="version">콘텐츠 버전: v2 - 바인드 마운트 반영</p>
 </body>
@@ -181,10 +183,10 @@ $ curl -s http://localhost:8080
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>이준호 개발 작업실</title>
+  <title>이XX 개발 작업실</title>
 </head>
 <body>
-  <h1>이준호의 개발 작업실</h1>
+  <h1>이XX의 개발 작업실</h1>
   <p>직접 만든 Docker 이미지에서 제공하는 웹 페이지입니다. Github Asheli1a</p>
   <p id="version">콘텐츠 버전: v1</p>
 </body>
@@ -196,10 +198,10 @@ $ curl -s http://localhost:8081
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>이준호 개발 작업실</title>
+  <title>이XX 개발 작업실</title>
 </head>
 <body>
-  <h1>이준호의 개발 작업실</h1>
+  <h1>이XX의 개발 작업실</h1>
   <p>직접 만든 Docker 이미지에서 제공하는 웹 페이지입니다. Github Asheli1a</p>
   <p id="version">콘텐츠 버전: v1</p>
 </body>

@@ -1,5 +1,7 @@
 # 커스텀 웹 서버 이미지 및 포트 매핑
 
+> 공개본 비식별화(2026-11-02): 문서·과거 응답 로그의 실명은 `이XX`로 치환하고, 브라우저 캡처의 실명 영역은 불투명하게 가렸다. 과거 실행의 포트·상태·ID·시각·버전·응답 헤더는 유지했다. 비식별화된 본문은 과거 원문과 길이가 다를 수 있다. 현재 보안 관리 방침은 [README 보안 점검](../README.md#8-보안-점검)을 참조한다.
+
 - 수행 일자: 2026-10-30
 - 별도 clone 재검증: 2026-10-31 — 마지막 절에 분리 기록
 - 실행 위치: WSL Ubuntu의 `~/dev-workstation`
@@ -49,10 +51,10 @@ $ cat site/index.html
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>이준호 개발 작업실</title>
+  <title>이XX 개발 작업실</title>
 </head>
 <body>
-  <h1>이준호의 개발 작업실</h1>
+  <h1>이XX의 개발 작업실</h1>
   <p>직접 만든 Docker 이미지에서 제공하는 웹 페이지입니다. Github Asheli1a</p>
   <p id="version">콘텐츠 버전: v1</p>
 </body>
@@ -166,10 +168,10 @@ Accept-Ranges: bytes
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>이준호 개발 작업실</title>
+  <title>이XX 개발 작업실</title>
 </head>
 <body>
-  <h1>이준호의 개발 작업실</h1>
+  <h1>이XX의 개발 작업실</h1>
   <p>직접 만든 Docker 이미지에서 제공하는 웹 페이지입니다. Github Asheli1a</p>
   <p id="version">콘텐츠 버전: v1</p>
 </body>
@@ -234,10 +236,10 @@ Accept-Ranges: bytes
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>이준호 개발 작업실</title>
+  <title>이XX 개발 작업실</title>
 </head>
 <body>
-  <h1>이준호의 개발 작업실</h1>
+  <h1>이XX의 개발 작업실</h1>
   <p>직접 만든 Docker 이미지에서 제공하는 웹 페이지입니다. Github Asheli1a</p>
   <p id="version">콘텐츠 버전: v1</p>
 </body>
@@ -297,7 +299,7 @@ Accept-Ranges: bytes
 - `EXPOSE 80`은 NGINX의 포트를 80으로 변경하는 설정이 아니며 호스트 포트 공개도 수행하지 않는다. 이번 베이스 이미지의 웹 포트가 80이라는 전제와 run의 -p 설정을 함께 사용했다.
 - `.dockerignore`는 Docker 빌드 컨텍스트 제외 설정이다. Git 추적 제외는 별도의 `.gitignore`에서 관리한다.
 - 태그 `nginx:alpine`은 나중에 다른 이미지로 바뀔 수 있다. 최초 빌드 로그에 보이는 digest는 터미널에서 잘린 형태이므로 완전한 digest 고정값으로 복사해 사용하지 않는다.
-- HTML 본문의 실명은 공개 콘텐츠에 포함돼 있다. 공개 여부는 작성자가 확인해야 하며 보안·개인정보 검토 완료로 간주하지 않는다.
+- 공개본의 실명은 이XX로 비식별화했다. 현재 제출 자료의 보안 검토 범위·결과는 README를 참조하며, 전체 과거 이력의 전수 검사와는 구분한다.
 - 이후 수행한 바인드 마운트 실험은 원본 site/index.html이 아니라 별도 복사본을 변경했다.
 - 같은 이름의 컨테이너 또는 사용 중인 호스트 포트가 있으면 충돌할 수 있다. 상태를 먼저 확인하고 이름·포트를 조정한다.
 - 연결한 소스 파일·PNG 이미지의 실제 저장소 존재 여부는 최종 제출 시 별도로 확인한다.
@@ -471,10 +473,10 @@ Accept-Ranges: bytes
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>이준호 개발 작업실</title>
+  <title>이XX 개발 작업실</title>
 </head>
 <body>
-  <h1>이준호의 개발 작업실</h1>
+  <h1>이XX의 개발 작업실</h1>
   <p>직접 만든 Docker 이미지에서 제공하는 웹 페이지입니다. Github Asheli1a</p>
   <p id="version">콘텐츠 버전: v1</p>
 </body>
@@ -496,10 +498,10 @@ Accept-Ranges: bytes
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>이준호 개발 작업실</title>
+  <title>이XX 개발 작업실</title>
 </head>
 <body>
-  <h1>이준호의 개발 작업실</h1>
+  <h1>이XX의 개발 작업실</h1>
   <p>직접 만든 Docker 이미지에서 제공하는 웹 페이지입니다. Github Asheli1a</p>
   <p id="version">콘텐츠 버전: v1</p>
 </body>
@@ -538,7 +540,7 @@ $ docker logs --tail 20 workspace-verify-18080
 
 ![별도 clone 재현: localhost 18081에서 v1 페이지 확인](images/verify-18081.jpg)
 
-두 캡처 모두 주소창에 재현용 포트가 보이고, 직접 작성한 개발 작업실 페이지와 `콘텐츠 버전: v1`을 확인할 수 있다. 원본 JPG를 내용 변경 없이 파일명만 구분해 보관했다.
+두 캡처 모두 주소창에 재현용 포트가 보이고, 직접 작성한 개발 작업실 페이지와 `콘텐츠 버전: v1`을 확인할 수 있다. 최초에는 원본 JPG를 파일명만 구분해 보관했으며, 2026-11-02 공개본의 실명 영역을 가림 처리했다.
 
 ### 결과
 
