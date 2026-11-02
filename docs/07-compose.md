@@ -1,93 +1,131 @@
-# Docker Compose 선택 실습 — 계획 및 기록 초안
+# Docker Compose 단일 서비스 실행 및 운영 검증
 
-## 1. 문서 상태와 기록 원칙
+## 1. 수행 범위와 현재 상태
 
-- 초안 작성일: 2026-10-31
-- 상태: 미실행 — 아래 명령은 앞으로 수행할 절차이며 실제 수행 로그가 아니다.
-- 대상: 선택 미션 중 Compose 단일 서비스와 운영 명령을 우선 수행한다.
-- 예정 환경: 기존 Windows / WSL Ubuntu / Docker Desktop 환경
-- 기준 디렉터리: `~/dev-workstation` — 다른 PC에서는 clone한 저장소 루트로 바꾼다.
-- 기존 필수 과제 기록과 웹 원본, Dockerfile, 볼륨 데이터는 유지한다.
-- 2026-11-02 공개본의 실명은 비식별화했다. 이후 새로 수집한 Compose 로그·캡처도 공개 전에 검토하며, 과거 보안 검토 완료를 새 자료에 자동 적용하지 않는다.
-- 설정·명령 예시는 bash/yaml 블록으로, 실행 후 수집한 명령과 출력은 별도의 console 블록으로 기록한다.
-- 아직 관찰하지 않은 이미지 ID·컨테이너 ID·시각·HTTP 성공 응답은 만들어 넣지 않는다.
-- 초안을 커밋해도 보너스 체크리스트는 미완료로 둔다.
+- 수행 일자: 2026-11-02
+- 실행 위치: WSL Ubuntu의 `~/dev-workstation`
+- 실행 환경: 기존 Docker Desktop WSL 연동
+- Docker Engine: 29.9.2
+- Docker Compose: v5.6.1
+- 단일 서비스 빌드·실행·HTTP·브라우저·로그 확인 완료
+- up·ps·logs·down 및 종료 후 상태 확인 완료
+- 멀티 컨테이너 통신·환경 변수·SSH 인증은 이번 결과에 포함하지 않는다.
 
-## 2. 선택 미션의 의미와 이번 범위
+아래 console 블록은 제공된 실제 명령과 출력이다. 프롬프트를 `$`로 정리하고 명령별 출력을 대응시켰다. 긴 초기 환경 출력은 필요한 부분만 발췌했다고 표시했으며, 결과를 새로 만들어 넣지 않았다.
 
-Dockerfile은 이미지를 어떻게 만들지 정의하고, Compose 파일은 그 이미지를 어떤 서비스 구성으로 실행할지 정의한다. Compose는 Dockerfile을 없애는 기능이 아니라 함께 사용하는 실행 설정 관리 도구다.
+작업 시작 시 조회한 HEAD는 `7b36293`이었다. 실행에 사용한 웹 소스와 Compose 설정에는 이후 작업 디렉터리의 미커밋 변경이 포함되어 있으므로, 해당 HEAD만을 실행 입력 전체의 확정 커밋으로 보지 않는다. 설정과 실제 응답은 아래 기록을 기준으로 한다.
 
-| 항목 | 의미·목적 | 이번 단계 |
-|---|---|---|
-| 단일 서비스 | docker run의 이미지·포트 설정을 YAML로 관리 | 우선 수행 |
-| 운영 명령 | 같은 프로젝트의 실행·상태·로그·종료 확인 | 단일 서비스와 함께 수행 |
-| 멀티 컨테이너 | 서비스 이름과 내부 네트워크 통신 이해 | 후속 계획 |
-| 환경 변수 | 같은 코드에서 설정만 바꿔 동작 변경 | 후속 계획 |
-| GitHub SSH | 공개키·개인키로 GitHub 원격 인증 | 별도 후속 실습. 이번 Compose 완료에 포함하지 않음 |
+## 2. Compose를 사용하는 의미
 
-Compose 공식 설명: [What is Docker Compose?](https://docs.docker.com/get-started/docker-concepts/the-basics/what-is-docker-compose/)
+Dockerfile은 이미지를 어떻게 만들지 정의하고, Compose 파일은 그 이미지를 어떤 서비스 구성으로 실행할지 정의한다. 기존 Dockerfile을 유지하면서 빌드 위치·이미지 태그·포트 연결을 YAML에 기록했다.
 
-## 3. 예정 구성과 기존 과제 보호
+이 실습의 목적은 긴 실행 옵션을 외워 입력하는 방식에서, 저장된 실행 설정으로 같은 서비스를 반복 실행하고 상태·로그·종료를 관리하는 방식으로 확장하는 것이다. Compose가 Dockerfile을 대체하는 것은 아니다.
 
-| 항목 | 계획값 |
+| 선택 항목 | 이번 결과 |
+|---|---|
+| Compose 단일 서비스 | 완료 — 빌드·실행·HTTP·브라우저 확인 |
+| Compose 운영 명령 | 완료 — up·ps·logs·down 및 종료 후 목록 확인 |
+| 멀티 컨테이너 통신 | 미수행 |
+| 환경 변수 동작 변경 | 미수행 |
+| GitHub SSH 인증 | 미수행 — 별도 실습 |
+
+공식 설명: [What is Docker Compose?](https://docs.docker.com/get-started/docker-concepts/the-basics/what-is-docker-compose/)
+
+## 3. 실제 실행 구성
+
+| 항목 | 적용값 |
 |---|---|
 | Compose 파일 | 저장소 루트의 `docker-compose.yml` |
 | 프로젝트 이름 | `workspace-bonus-single` |
 | 서비스 이름 | `web` |
-| 빌드 컨텍스트 | 저장소 루트 `.` |
+| 빌드 컨텍스트 | 프로젝트 루트 `.` |
 | Dockerfile | 기존 루트 Dockerfile |
 | 이미지 태그 | `workspace-web:compose-single` |
-| 호스트 주소·포트 | `127.0.0.1:18082` |
-| 컨테이너 포트 | `80/tcp` |
-| 웹 소스 | 기존 `site/index.html` — v1 |
-| 스토리지 | 이번 단계에서는 별도 마운트·볼륨 없음 |
+| 실제 표시 이미지 ID | `a46d30a28908` |
+| 컨테이너 이름 | `workspace-bonus-single-web-1` |
+| 플랫폼 | `linux/amd64` |
+| 포트 매핑 | `127.0.0.1:18082 → 80/tcp` |
+| 웹 소스 | `site/index.html` |
+| 콘텐츠 버전 | `v1` |
+| 스토리지 | 별도 마운트·볼륨 없음 |
 
-- 기존 `workspace-web:1.0`, `workspace-web:verification` 태그와 구분한다.
-- 기존 8080·8081·8082·18080·18081 대신 18082를 계획값으로 쓴다. 실제 점유 여부는 수행 직전에 확인한다.
-- 프로젝트 이름을 구분해도 호스트 포트 충돌까지 해결되지는 않는다.
-- `container_name`을 고정하지 않고 Compose가 프로젝트·서비스에 따라 생성한 이름을 실제 ps 결과로 기록한다.
-- 모든 Compose 명령에서 동일한 `-p`와 `-f`를 사용한다. `down`에서도 다른 프로젝트를 지정하지 않도록 주의한다.
-- `workspace-data` 등 기존 볼륨은 연결하거나 삭제하지 않는다.
-- 이 문서의 초안에는 실행용 YAML을 예시로 담았으며, 실제 루트 `docker-compose.yml` 파일을 이미 작성·검증했다는 뜻은 아니다.
+기존 필수 실습과 프로젝트 이름·이미지 태그·호스트 포트를 구분했다. 컨테이너 이름은 고정하지 않고 Compose가 생성한 이름을 실제 출력으로 확인했다. 기존 `workspace-data` 볼륨을 이번 서비스에 연결하지 않았다.
 
-프로젝트·파일 지정: [docker compose의 -p와 -f](https://docs.docker.com/reference/cli/docker/compose/)
+## 4. 실행 전 확인
 
-## 4. 실행 전 확인 — 예정 명령
+```console
+$ cd ~/dev-workstation
+$ pwd
+/home/user/dev-workstation
 
-```bash
-cd ~/dev-workstation
-pwd
-git status
+$ git status
+On branch main
+Your branch is up to date with 'origin/main'.
 
-docker info
-docker compose version
-docker compose ls
-docker ps -a --format 'table {{.Names}}\t{{.Status}}\t{{.Ports}}'
-docker image ls workspace-web:compose-single
-ss -ltn '( sport = :18082 )'
-ls -l Dockerfile site/index.html
+Untracked files:
+  (use "git add <file>..." to include in what will be committed)
+        1-Setting-Up-a-Workspace-/
+        cli-practice/basic-ops/
+        cli-practice/permissions/
+
+nothing added to commit but untracked files present (use "git add" to track)
+
+$ git log -1 --oneline
+7b36293 (HEAD -> main, origin/main, origin/HEAD) docs: redact personal names and update privacy guidance
+
+$ docker info
+[Client/Server의 주요 버전·환경 부분만 발췌]
+Client:
+ Version:    29.9.2
+ Context:    default
+Server:
+ Server Version: 29.9.2
+ Kernel Version: 6.18.54.1-microsoft-standard-WSL2
+ Operating System: Docker Desktop
+ OSType: linux
+ Architecture: x86_64
+
+$ docker compose version
+Docker Compose version v5.6.1
 ```
 
-확인할 사항:
+Docker Server 정보를 확인해 엔진 연결과 Compose 사용 가능 상태를 점검했다. Docker info의 자원·컨테이너 수는 조회 시점의 값이므로 이후 ps의 상태와 동일 시점이라고 간주하지 않는다.
 
-- Docker 엔진에 연결되고 Compose 명령을 사용할 수 있는가?
-- 같은 프로젝트 이름이 기존 실습에서 이미 사용 중이지 않은가?
-- 같은 이미지 태그가 이미 있다면 이번 실습용인지 확인했는가?
-- 포트를 사용 중인 컨테이너·서비스가 없는가? `ss` 출력만으로 Docker Desktop·Windows 전체 포트 점유를 확정하지 않는다. 실행 시 포트 충돌이 나면 기존 서비스를 종료하지 말고 다른 포트를 선택한다.
-- 현재 위치가 Dockerfile과 site가 있는 프로젝트 루트인가?
-- 기존 변경 사항을 덮어쓸 위험이 없는가?
+### 기존 구성·포트 확인
 
-## 5. Compose 파일 작성 — 설정 예시
+```console
+$ docker compose ls -a
+NAME                STATUS              CONFIG FILES
 
-기존 `docker-compose.yml`이 있으면 내용을 먼저 확인한다. 새 실습을 위해 임의로 덮어쓰지 않는다.
+$ docker ps -a \
+  --filter label=com.docker.compose.project=workspace-bonus-single
+CONTAINER ID   IMAGE     COMMAND   CREATED   STATUS    PORTS     NAMES
 
-```bash
-nano docker-compose.yml
+$ docker image ls workspace-web:compose-single
+                                                                                                    i Info →   U  In Use
+IMAGE   ID             DISK USAGE   CONTENT SIZE   EXTRA
+
+$ ss -ltn '( sport = :18082 )'
+State          Recv-Q          Send-Q                   Local Address:Port                   Peer Address:Port
+
+$ for file in compose.yaml compose.yml docker-compose.yaml docker-compose.yml
+> do
+>   if [ -e "$file" ]; then
+>     ls -l "$file"
+>   fi
+> done
 ```
 
-루트 파일에 작성할 계획 설정:
+파일 확인 반복문은 출력이 없었다. 조회 당시 동일 Compose 프로젝트·대상 이미지·기본 Compose 파일이 표시되지 않았고, ss에서도 해당 리스닝 항목이 표시되지 않았다. ss만으로 Windows·Docker Desktop 전체의 포트 예약까지 확정한 것은 아니며, 이후 실제 실행 성공으로 이번 포트 연결을 확인했다.
 
-```yaml
+## 5. Compose 파일과 설정 해석
+
+### 파일 내용
+
+```console
+$ nano docker-compose.yml
+
+$ cat docker-compose.yml
 services:
   web:
     build:
@@ -98,146 +136,248 @@ services:
       - "127.0.0.1:18082:80"
 ```
 
-| 설정 | 의미 |
+| 설정 | 목적 |
 |---|---|
-| `services.web` | web이라는 서비스 정의 |
-| `build.context` | 빌드에 사용할 프로젝트 위치 |
-| `build.dockerfile` | 사용할 Dockerfile |
-| `image` | 빌드한 이미지에 사용할 태그 |
-| `ports` | 호스트의 로컬 주소·포트와 컨테이너 포트 연결 |
+| `services.web` | web 서비스 정의 |
+| `build.context: .` | 프로젝트 루트를 빌드 컨텍스트로 지정 |
+| `dockerfile: Dockerfile` | 기존 커스텀 이미지 정의 재사용 |
+| `image` | 선택 실습용 이미지 태그 지정 |
+| `ports` | 로컬 호스트 18082를 컨테이너 80에 연결 |
 
-이 설정은 기존 Dockerfile로 v1 콘텐츠를 포함한 이미지를 빌드하고 실행하는 구성이며, 바인드 마운트 실험은 아니다. 내용이 바뀌면 COPY 기반 이미지의 재빌드가 필요하다.
+이번 구성은 이미지의 COPY로 포함한 HTML을 제공하며 바인드 마운트 구성은 아니다.
 
-## 6. 설정 해석 확인 — 예정 명령
+### config 결과
 
-```bash
-docker compose -p workspace-bonus-single -f docker-compose.yml config
+```console
+$ docker compose -p workspace-bonus-single \
+  -f docker-compose.yml config
+name: workspace-bonus-single
+services:
+  web:
+    image: workspace-web:compose-single
+    networks:
+      default: null
+    build:
+      context: /home/user/dev-workstation
+      dockerfile: Dockerfile
+    ports:
+      - mode: ingress
+        host_ip: 127.0.0.1
+        target: 80
+        published: "18082"
+        protocol: tcp
+networks:
+  default:
+    name: workspace-bonus-single_default
 ```
 
-기대 확인 사항:
+YAML이 정상 해석됐고, 빌드 경로·이미지·포트와 프로젝트 기본 네트워크 이름을 확인했다. config 결과만으로 접속 성공을 판정하지 않고 실제 실행과 HTTP를 별도로 확인했다.
 
-- YAML을 정상적으로 해석하는지 확인한다.
-- 빌드 경로·이미지 태그·포트가 계획과 일치하는지 확인한다.
-- 오류가 있으면 실행 전에 수정한다.
-- config의 성공은 설정 해석 확인이며 웹 서버의 기동·접속 성공 증거는 아니다.
-- 향후 환경 변수·비밀정보를 넣는다면 config의 해석 결과에도 값이 나타날 수 있으므로 공개 전 내용을 검토한다.
+## 6. 이미지 빌드와 서비스 실행
 
-## 7. 빌드·실행과 상태 확인 — 예정 명령
+다음은 실제 수집한 빌드·실행 결과다.
 
-```bash
-docker compose -p workspace-bonus-single -f docker-compose.yml up -d --build
-
-docker compose -p workspace-bonus-single -f docker-compose.yml ps
-
-docker compose -p workspace-bonus-single -f docker-compose.yml images
+```console
+$ docker compose -p workspace-bonus-single \
+  -f docker-compose.yml up -d --build web
+[+] Building 1.7s (9/9) FINISHED
+ => [internal] load local bake definitions                                                                         0.0s
+ => => reading from stdin 524B                                                                                     0.0s
+ => [internal] load build definition from Dockerfile                                                               0.0s
+ => => transferring dockerfile: 164B                                                                               0.0s
+ => [internal] load metadata for docker.io/library/nginx:alpine                                                    1.0s
+ => [internal] load .dockerignore                                                                                  0.0s
+ => => transferring context: 76B                                                                                   0.0s
+ => [internal] load build context                                                                                  0.0s
+ => => transferring context: 500B                                                                                  0.0s
+ => CACHED [1/2] FROM docker.io/library/nginx:alpine@sha256:785835ea65db4bba6f021acc0f3be91b0fef76a53fe41f8588c66  0.0s
+ => => resolve docker.io/library/nginx:alpine@sha256:785835ea65db4bba6f021acc0f3be91b0fef76a53fe41f8588c6698d2aed  0.0s
+ => [2/2] COPY site/ /usr/share/nginx/html/                                                                        0.0s
+ => exporting to image                                                                                             0.3s
+ => => exporting layers                                                                                                           0.1s
+ => => exporting manifest sha256:ed4b099305e0a72dcf2639d8d679c759558988cd387136c4226bd8db139cca2d                  0.0s
+ => => exporting config sha256:913c5debae49cc095227de3763463bedcec73781e8ecfe9837ab615a9e6c6880                    0.0s
+ => => exporting attestation manifest sha256:c52166dcd7c1c7c338d553d8796825f2ff8de97c95eaa02e9fafa0a29678de21      0.0s
+ => => exporting manifest list sha256:a46d30a28908c84c1ca3f0dc6e71129fca7df3266900d9cfdb32e94c109f130c             0.0s
+ => => naming to docker.io/library/workspace-web:compose-single                                                    0.0s
+ => => unpacking to docker.io/library/workspace-web:compose-single                                                 0.0s
+ => resolving provenance for metadata file                                                                         0.0s
+[+] up 2/2
+ ✔ Image workspace-web:compose-single     Built                                                                     1.9s
+ ✔ Container workspace-bonus-single-web-1 Started                                                                   0.7s
 ```
 
-- `--build`: 시작 전에 이미지를 빌드한다.
-- `-d`: 백그라운드로 실행한다.
-- build 성공과 컨테이너 상태를 따로 확인한다.
-- ps에서 Running/Up이어도 HTTP가 정상이라는 뜻은 아니므로 다음 접속 확인까지 수행한다.
-- `--build`가 캐시 없는 빌드를 뜻하지는 않는다. 빌드 로그에 CACHED가 있으면 실제 캐시 사용을 기록한다.
+- 베이스 레이어는 기존 캐시를 사용했다.
+- COPY 단계는 실제 실행됐다.
+- 이미지는 `workspace-web:compose-single`로 빌드됐고 서비스 컨테이너가 시작됐다.
+- `--build`를 사용했지만 캐시 없는 빌드로 기록하지 않는다.
+- 이 로그의 베이스 digest 표시는 터미널에서 잘린 값이므로 완전한 고정값으로 복사하지 않는다.
 
-근거: [docker compose up](https://docs.docker.com/reference/cli/docker/compose/up/)
+## 7. 상태 및 이미지 확인
 
-## 8. HTTP·브라우저·서버 로그 확인 — 예정 절차
+```console
+$ docker compose -p workspace-bonus-single \
+  -f docker-compose.yml ps
+NAME                           IMAGE                          COMMAND                  SERVICE   CREATED         STATUS         PORTS
+workspace-bonus-single-web-1   workspace-web:compose-single   "/docker-entrypoint.…"   web       7 seconds ago   Up 6 seconds   127.0.0.1:18082->80/tcp
 
-```bash
-curl --max-time 5 -i http://localhost:18082
-
-docker compose -p workspace-bonus-single -f docker-compose.yml logs --tail 30 web
+$ docker compose -p workspace-bonus-single \
+  -f docker-compose.yml images
+CONTAINER                      REPOSITORY          TAG                 PLATFORM            IMAGE ID            SIZE                CREATED
+workspace-bonus-single-web-1   workspace-web       compose-single      linux/amd64         a46d30a28908        93.6MB              7 seconds ago
 ```
 
-기대 결과이며 아직 실제 관찰값은 아님:
+web 서비스가 실행 상태이고 포트 연결이 계획과 일치했다. 이 출력에는 컨테이너 이름은 있지만 컨테이너 ID는 없으므로 임의의 ID를 추가하지 않았다. 상태가 Up이라는 사실과 HTTP 성공은 별도로 확인했다.
 
-- HTTP 200 응답
-- 직접 작성한 개발 작업실 HTML과 콘텐츠 버전 v1
-- web 로그에서 해당 요청에 대한 성공 응답
+## 8. HTTP·브라우저·서버 로그 확인
 
-기동 직후 연결이 실패하면 ps와 logs를 먼저 확인한다. 웹 서버 준비 지연과 지속적인 오류를 구분하며 최초 실패와 후속 확인 결과를 실제대로 기록한다.
+### HTTP 응답
 
-Windows 브라우저에서도 `http://localhost:18082`에 접속한다. 주소창의 포트와 페이지가 함께 보이게 캡처하고, 다른 창·탭·알림·인증정보를 검토한다.
+```console
+$ curl --max-time 5 -i http://localhost:18082
+HTTP/1.1 200 OK
+Server: nginx/1.31.8
+Date: Mon, 02 Nov 2026 07:17:29 GMT
+Content-Type: text/html
+Content-Length: 428
+Last-Modified: Mon, 02 Nov 2026 07:16:58 GMT
+Connection: keep-alive
+ETag: "6ae838ea-1ac"
+Accept-Ranges: bytes
 
-캡처 예정 파일명은 `docs/images/compose-single-18082.png`이다. 아직 파일을 생성하지 않았으므로 이미지 링크는 추가하지 않는다. 실제 파일을 추가한 뒤 이 문서에서 상대 경로 `images/compose-single-18082.png`로 연결한다.
-
-## 9. 해당 Compose 프로젝트 종료·정리 — 예정 명령
-
-아래는 향후 이번 프로젝트의 종료를 검증할 때 사용할 명령이다. 지금 실행·삭제했다는 뜻은 아니다.
-
-```bash
-docker compose -p workspace-bonus-single -f docker-compose.yml down
-
-docker compose -p workspace-bonus-single -f docker-compose.yml ps -a
-
-docker ps -a --filter label=com.docker.compose.project=workspace-bonus-single
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>루키마리너-1_Asheli1a 개발 작업실</title>
+</head>
+<body>
+  <h1>루키마리너-1_Asheli1a의 개발 작업실</h1>
+  <p>직접 만든 Docker 이미지에서 제공하는 웹 페이지입니다. Github Asheli1a</p>
+  <p id="version">콘텐츠 버전: v1</p>
+</body>
+</html>
 ```
 
-- `down`은 단순 중지가 아니라 해당 Compose 구성의 서비스 컨테이너와 기본 네트워크 등을 제거한다.
-- 이 구성은 볼륨을 정의하지 않는다. `down -v`, `--rmi`, `prune` 같은 추가 정리 옵션은 사용하지 않는다.
-- 기본 down만으로 빌드 이미지가 삭제됐다고 기록하지 않는다.
-- ps와 프로젝트 라벨 필터로 이번 대상이 남아 있는지 확인한다.
-- 기존 실습 컨테이너·이미지·볼륨은 정리 대상에 포함하지 않는다.
+HTTP 응답의 Date는 2026-11-02 07:17:29 GMT로, KST 기준 16:17:29이다. 이는 해당 HTTP 응답 시각이며 전체 실습 시작·종료 시각으로 확대 해석하지 않는다.
 
-근거: [docker compose down](https://docs.docker.com/reference/cli/docker/compose/down/)
+### Windows 브라우저
 
-## 10. 실제 수행 결과 — 아직 미작성
+![Compose 단일 서비스: localhost 18082에서 개발 작업실과 v1 콘텐츠 확인](images/compose-single-18082.png)
 
-실습 후 아래 표를 실제 값으로 채우고, 각 단계의 입력 명령과 출력을 console 코드블록으로 추가한다. 앞의 예정 명령을 실행 로그로 복사해 완료 처리하지 않는다.
+주소창에 localhost:18082가 표시되고 개발 작업실 페이지와 콘텐츠 버전 v1이 함께 보인다. 제공된 JPG를 같은 크기의 PNG로 저장했으며, 화면 내용이나 출력 문구는 편집하지 않았다.
 
-| 기록 항목 | 현재 상태 |
+### 서버 로그
+
+```console
+$ docker compose -p workspace-bonus-single \
+  -f docker-compose.yml logs --tail 30 web
+web-1  | /docker-entrypoint.sh: /docker-entrypoint.d/ is not empty, will attempt to perform configuration
+web-1  | /docker-entrypoint.sh: Looking for shell scripts in /docker-entrypoint.d/
+web-1  | /docker-entrypoint.sh: Launching /docker-entrypoint.d/10-listen-on-ipv6-by-default.sh
+web-1  | 10-listen-on-ipv6-by-default.sh: info: Getting the checksum of /etc/nginx/conf.d/default.conf
+web-1  | 10-listen-on-ipv6-by-default.sh: info: Enabled listen on IPv6 in /etc/nginx/conf.d/default.conf
+web-1  | /docker-entrypoint.sh: Sourcing /docker-entrypoint.d/15-local-resolvers.envsh
+web-1  | /docker-entrypoint.sh: Launching /docker-entrypoint.d/20-envsubst-on-templates.sh
+web-1  | /docker-entrypoint.sh: Launching /docker-entrypoint.d/30-tune-worker-processes.sh
+web-1  | /docker-entrypoint.sh: Configuration complete; ready for start up
+web-1  | 2026/11/02 07:17:16 [notice] 1#1: using the "epoll" event method
+web-1  | 2026/11/02 07:17:16 [notice] 1#1: nginx/1.31.8
+web-1  | 2026/11/02 07:17:16 [notice] 1#1: built by gcc 15.2.0 (Alpine 15.2.0)
+web-1  | 2026/11/02 07:17:16 [notice] 1#1: OS: Linux 6.18.54.1-microsoft-standard-WSL2
+web-1  | 2026/11/02 07:17:16 [notice] 1#1: getrlimit(RLIMIT_NOFILE): 1048576:1048576
+web-1  | 2026/11/02 07:17:16 [notice] 1#1: start worker processes
+web-1  | 2026/11/02 07:17:16 [notice] 1#1: start worker process 30
+web-1  | 2026/11/02 07:17:16 [notice] 1#1: start worker process 31
+web-1  | 2026/11/02 07:17:16 [notice] 1#1: start worker process 32
+web-1  | 2026/11/02 07:17:16 [notice] 1#1: start worker process 33
+web-1  | 2026/11/02 07:17:16 [notice] 1#1: start worker process 34
+web-1  | 2026/11/02 07:17:16 [notice] 1#1: start worker process 35
+web-1  | 2026/11/02 07:17:16 [notice] 1#1: start worker process 36
+web-1  | 2026/11/02 07:17:16 [notice] 1#1: start worker process 37
+web-1  | 172.18.0.1 - - [02/Nov/2026:07:17:29 +0000] "GET / HTTP/1.1" 200 428 "-" "curl/8.18.0" "-"
+```
+
+HTTP 응답의 시각·상태·크기와 로그의 GET / 200 428이 대응한다. 웹 서버의 시작 기록과 요청 처리 결과를 함께 확인했다.
+
+## 9. 결과 요약
+
+| 검증 항목 | 실제 결과 |
 |---|---|
-| 실제 수행 일시 | 미실행 |
-| 실제 소스 커밋 SHA | 미기록 |
-| Compose 버전 | 이번 실습에서 미확인 |
-| config 결과 | 미실행 |
-| 빌드 결과·표시 ID·캐시 여부 | 미실행 |
-| 프로젝트·컨테이너 이름·ID·상태 | 미실행 |
-| 실제 호스트 주소·포트 | 미실행 — 계획값 127.0.0.1:18082 |
-| HTTP 응답 | 미실행 |
-| 브라우저 캡처 | 미수집 |
-| 서버 로그 | 미실행 |
-| down과 종료 후 목록 | 미실행 |
-| 이번 단계 오류·해결 | 아직 관찰 없음 |
+| config | 정상 해석, 프로젝트·빌드·포트·네트워크 확인 |
+| build/up | FINISHED / Built / Started |
+| 캐시 | 베이스 레이어 CACHED, COPY 단계 실행 |
+| 컨테이너 상태 | workspace-bonus-single-web-1 / Up 6 seconds |
+| 이미지 | workspace-web:compose-single / a46d30a28908 |
+| 포트 | 127.0.0.1:18082 → 80/tcp |
+| HTTP | 200 OK / 428바이트 / v1 |
+| 브라우저 | 주소창·페이지·v1 확인 |
+| logs | GET / 200 428 확인 |
+| down | 서비스 컨테이너와 기본 네트워크 Removed |
+| 종료 후 목록 | Compose ps -a와 프로젝트 라벨 필터 모두 대상 없음 |
 
-기록 순서: 수행 전 확인 → 설정 원문 → config → up/빌드 → ps/images → curl → logs → 브라우저 → down → 종료 후 목록.
+이번에 제공한 빌드·접속 단계에서는 별도 오류가 보고되지 않았다. 예상 오류를 실제 트러블슈팅 사례로 추가하지 않았다.
 
-오류가 발생하면 증상 → 원인 가설 → 확인 명령·결과 → 해결 또는 대안 → 재확인 순서로 기록한다. 예상 오류를 실제 발생한 오류로 작성하지 않는다.
+## 10. 종료 검증
 
-## 11. 완료 체크리스트 — 실행 후에만 변경
+브라우저 증거를 확보한 후 같은 프로젝트명과 Compose 파일을 지정해 종료했다.
 
-- [ ] 실제 docker-compose.yml을 작성하고 config 결과를 확인했다.
-- [ ] Compose로 빌드·실행하고 실제 컨테이너 상태를 확인했다.
-- [ ] HTTP 응답과 v1 콘텐츠를 확인했다.
-- [ ] 주소창 포함 브라우저 캡처를 추가했다.
-- [ ] web 서비스 로그에서 요청 결과를 확인했다.
-- [ ] up·ps·logs·down 명령과 실제 결과를 기록했다.
-- [ ] 해당 프로젝트의 종료 후 상태를 확인했다.
-- [ ] 새 로그·설정·캡처의 민감정보를 검토했다.
+```console
+$ docker compose -p workspace-bonus-single \
+  -f docker-compose.yml down
+[+] down 2/2
+ ✔ Container workspace-bonus-single-web-1 Removed                                                                   0.4s
+ ✔ Network workspace-bonus-single_default Removed                                                                   0.3s
 
-단일 서비스와 운영 명령을 검증한 경우에만 README의 해당 두 체크 항목을 완료로 바꾼다. 멀티 컨테이너·환경 변수·SSH 항목은 별도의 실행 증거가 필요하다.
+$ docker compose -p workspace-bonus-single \
+  -f docker-compose.yml ps -a
+NAME      IMAGE     COMMAND   SERVICE   CREATED   STATUS    PORTS
 
-## 12. 후속 확장 계획 — 미실행
+$ docker ps -a \
+  --filter label=com.docker.compose.project=workspace-bonus-single
+CONTAINER ID   IMAGE     COMMAND   CREATED   STATUS    PORTS     NAMES
+```
 
-### 멀티 컨테이너 통신
+이번 Compose 서비스 컨테이너와 기본 네트워크가 제거됐고, 이후 두 목록에서 해당 프로젝트의 컨테이너가 표시되지 않았다. 단순 중지가 아니라 제거 결과를 확인했다.
 
-웹과 검증용 보조 서비스를 같은 Compose 구성에 정의한다. 보조 서비스에서 `http://web:80`으로 요청하고 실제 HTML 응답과 web 로그를 확인한다. 서비스 이름 web으로 찾는 내부 통신과 호스트의 localhost:18082 접속을 구분한다. 컨테이너 안의 localhost는 일반적으로 그 컨테이너 자신이며 다른 web 서비스 주소를 뜻하지 않는다.
+`down -v`, `--rmi`, `prune`은 사용하지 않았다. 이 결과만으로 이미지나 기존 볼륨이 삭제됐다고 기록하지 않으며, 다른 실습 대상의 전체 상태까지 재검증한 것으로 확대하지 않는다.
 
-두 서비스를 실행한 사실만으로 완료 처리하지 않는다. 준비 전 요청 실패가 발생할 수 있으므로 재시도·준비 확인 방법도 설계한다.
+[Compose down 공식 안내](https://docs.docker.com/reference/cli/docker/compose/down/)
 
-근거: [Networking in Compose](https://docs.docker.com/compose/how-tos/networking/)
+## 11. 완료 체크리스트
 
-### 환경 변수로 실제 동작 변경
+- [x] docker-compose.yml 작성과 config 결과 확인
+- [x] Compose 빌드·실행과 컨테이너 상태 확인
+- [x] HTTP 200과 v1 콘텐츠 확인
+- [x] 주소창 포함 브라우저 캡처 추가
+- [x] web 서비스 로그에서 요청 결과 확인
+- [x] up·ps·logs 명령과 실제 결과 기록
+- [x] down 명령과 실제 결과 기록
+- [x] 해당 프로젝트의 종료 후 상태 확인
+- [ ] 새 설정·로그·캡처의 최종 민감정보 검토 확인
 
-NGINX 설정 템플릿의 listen 포트 같은 값을 환경 변수로 치환하고, 생성된 설정·컨테이너 내부 포트·호스트 매핑·HTTP 응답을 함께 비교하는 방향으로 진행한다. 실제 파일과 포트 설계는 후속 단계에서 확정한다.
+README에서는 단일 서비스와 up/down/ps/logs를 완료로 표시한다. 멀티 컨테이너·환경 변수·SSH 항목은 별도 실습이다.
 
-`APP_ENV=dev` 같은 변수를 전달하기만 하면 NGINX 동작이 자동으로 바뀌는 것은 아니다. 단순 변수 출력이나 호스트 매핑만의 변경을 NGINX 내부 listen 포트 변경으로 기록하지 않는다. 값 변경을 실제로 사용하는 설정이 있어야 한다.
+## 12. 재현 주의사항과 후속 계획
 
-근거: [NGINX 공식 이미지의 환경 변수 템플릿 안내](https://hub.docker.com/_/nginx)
+- 모든 Compose 명령에서 같은 `-p workspace-bonus-single`과 `-f docker-compose.yml`을 사용한다.
+- 프로젝트 이름을 구분해도 같은 호스트 포트 충돌은 피할 수 없으므로 다른 환경에서는 포트 점유를 확인한다.
+- 개인 PC의 절대 경로는 clone한 프로젝트 경로로 대체한다. 프로젝트 루트에서 실행하며 기존 파일을 임의로 덮어쓰지 않는다.
+- 실행 로그의 이미지 ID·시각·상태는 당시 관찰값이며 재실행 값과 다를 수 있다.
+- COPY 기반 구성은 소스 수정 시 재빌드가 필요하다. 바인드 마운트의 실시간 반영과 혼동하지 않는다.
+- 새로 수집한 자료는 공개 전 검토하며 이전 보안 검토를 새 로그·캡처에 자동 적용하지 않는다.
 
-### SSH 인증
+### 후속 멀티 컨테이너 통신
 
-Compose와 별개의 GitHub 인증 실습으로 진행한다. 개인키는 로컬에서 보호하고 공개키만 GitHub에 등록한다. 본인 계정의 SSH 인증과 실제 push 성공을 검증한다. 공용 장비의 기존 타인 키를 덮어쓰거나 개인키를 저장소에 추가하지 않는다.
+웹과 검증용 보조 서비스를 같은 Compose 구성에 정의하고 보조 서비스에서 `http://web:80`으로 요청한다. 응답과 web 로그로 통신을 검증한다. 두 서비스를 켜기만 해서는 완료 처리하지 않는다. 호스트 localhost:18082와 컨테이너 내부 서비스 주소를 구분하고 준비 상태 확인·재시도도 고려한다.
 
-근거: [GitHub SSH 연결 안내](https://docs.github.com/en/authentication/connecting-to-github-with-ssh)
+### 후속 환경 변수
 
-[NGINX 이미지와 포트 실습](03-web.md) · [스토리지 실습](04-storage.md) · [Git·GitHub·VSCode 연동](05-git-github.md) · [프로젝트 README](../README.md)
+NGINX 설정 템플릿과 환경 변수를 연결해 실제 listen 포트나 서버 설정이 달라지는지 확인한다. 단순 환경 변수 출력이나 호스트 포트 매핑만의 변경을 서버 내부 설정 변경으로 기록하지 않는다.
+
+### 후속 SSH 인증
+
+Compose와 별개로 본인 키의 GitHub SSH 인증과 실제 push를 확인한다. 개인키를 저장소에 넣거나 공용 장비의 타인 키를 덮어쓰지 않는다.
+
+[NGINX 이미지·포트 실습](03-web.md) · [스토리지 실습](04-storage.md) · [Git·GitHub·VSCode 연동](05-git-github.md) · [프로젝트 README](../README.md)
