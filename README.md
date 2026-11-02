@@ -48,13 +48,13 @@
 | [03-web](docs/03-web.md) | 커스텀 이미지·포트 접속·별도 clone 재현 | 기존 실습 및 캐시 사용 재현 검증 완료 |
 | [04-storage](docs/04-storage.md) | 바인드 마운트·볼륨 | 2026-10-31 볼륨 결과까지 확인, 별도 완성본 유지 |
 | [05-git-github](docs/05-git-github.md) | Git 설정·GitHub·VSCode | 실제 설정·로그인 및 상세 문서 최신 반영 확인 완료 |
-| [06-troubleshooting](docs/06-troubleshooting.md) | 오류·환경 문제 6건의 분석·대응 | 해결 확인 5건, 서버 설치 실패 1건은 원인 미확인 |
+| [06-troubleshooting](docs/06-troubleshooting.md) | 오류·환경 문제 7건의 분석·대응 | 해결 확인 6건, 서버 설치 실패 1건은 원인 미확인 |
 | [07-compose](docs/07-compose.md) | Compose 단일 서비스·실행·접속·종료 | 단일 서비스 및 up/down/ps/logs 검증 완료 |
 | [08-compose-multi](docs/08-compose-multi.md) | Compose 두 서비스·내부 통신·종료 | 실제 로그 검증 완료 |
 | [09-compose-env](docs/09-compose-env.md) | 환경 변수·NGINX 내부 포트·동일 이미지·종료 | 8080/9090 실제 비교 검증 완료 |
 | [10-github-ssh](docs/10-github-ssh.md) | SSH 계정 인증·실제 push·원격 SHA | 실제 전송 검증 완료 |
 
-실습 기록의 검토 기준은 2026-10-31까지 제공된 파일과 실행 결과이며, 보안 점검·실명 비식별화는 2026-11-02에 추가 반영했다. 문서 편집 완료와 필수 과제 전체 완료는 구분한다. 05 문서는 원격에서 내용과 캡처 링크를 확인했다. 웹 서버는 커밋 ab1ce1a5854d598ea058c41d885a58fb826ff0a5의 별도 clone에서 재현했다.
+실습 기록의 검토 기준은 2026-10-31까지 제공된 파일과 실행 결과이며, 보안 점검·실명 비식별화는 2026-11-02에 추가 반영했다. 문서 편집 완료와 필수 과제 전체 완료는 구분한다. 05 문서는 원격에서 내용과 캡처 링크를 확인했다. 웹 서버는 커밋 [ab1ce1a5854d598ea058c41d885a58fb826ff0a5](https://github.com/Asheli1a/1-Setting-Up-a-Workspace-/commit/ab1ce1a5854d598ea058c41d885a58fb826ff0a5)의 별도 clone에서 재현했다.
 
 ## 3. 수행 체크리스트
 
@@ -229,7 +229,7 @@ Git은 로컬에서 변경 이력과 브랜치를 관리하는 도구이고, Git
 
 ## 7. 트러블슈팅
 
-실습 중 발생한 여섯 가지 문제에 대해 증상, 원인 분석, 해결 방법 및 재검증 결과를 기록했다. 다섯 건은 해결 결과를 확인했으며, 외부 `code .`의 서버 설치 실패 한 건은 원인 미확인으로 구분했다.
+실습 중 발생한 일곱 가지 문제에 대해 증상, 원인 분석, 해결 방법 및 재검증 결과를 기록했다. 여섯 건은 해결 결과를 확인했으며, 외부 `code .`의 서버 설치 실패 한 건은 원인 미확인으로 구분했다.
 
 | 번호 | 문제 | 해결 방법 | 재검증 결과 | 상태 | 상세 기록 |
 |---|---|---|---|---|---|
@@ -239,6 +239,7 @@ Git은 로컬에서 변경 이력과 브랜치를 관리하는 도구이고, Git
 | 4 | VSCode PowerShell에서 Git 미인식 | WSL 통합 Bash로 연결해 Ubuntu Git과 프로젝트 조회 | `/usr/bin/git`, Git 2.53.0, 프로젝트 루트·main·원격 확인 | 해결 완료 | [실행 환경 오류 기록](docs/06-troubleshooting.md#4-vscode의-powershell에서-git-명령을-찾지-못함) |
 | 5 | 공용 VSCode의 타인 GitHub 계정 | 본인 계정으로 다시 로그인하고 CLI 인증·저장소별 작성자 설정 확인 | Asheli1a 계정, CLI 활성 상태, `.git/config`의 작성자 확인 | 전환·설정 확인 완료 | [계정 확인 기록](docs/06-troubleshooting.md#5-공용-노트북의-vscode에-타인-github-계정이-로그인됨) |
 | 6 | `code .` 실행 중 서버 설치 실패 | 저장 완료와 최종 실패 메시지를 함께 기록, 현재 동작하는 WSL 창 사용 | 현재 WSL Git 정상이나 해당 설치 경로의 복구는 미확인 | 원인 미확인 | [설치 실패 기록](docs/06-troubleshooting.md#6-code-실행-중-vs-code-server-설치-실패) |
+| 7 | GitHub SSH 인증 실패 | GitHub 웹의 추가 이메일 확인 완료 후 같은 키로 재시험 | 본인 계정 인증 및 실제 SSH push·원격 SHA 일치 확인 | 해결 완료 | [SSH 인증 오류 기록](docs/06-troubleshooting.md#7-github-ssh-인증-실패) |
 
 ### 해결 과정에서 확인한 점
 
@@ -251,6 +252,7 @@ Git은 로컬에서 변경 이력과 브랜치를 관리하는 도구이고, Git
 - WSL 폴더를 열었다는 사실과 명령 실행 환경이 WSL이라는 사실은 다르다. VSCode의 통합 Bash에서 Linux·Git 경로를 함께 확인했다.
 - 공용 장비에서는 VSCode 계정·CLI 인증·Git 작성자 정보를 각각 확인했다. 저장소별 작성자 설정은 인증 계정 전환을 대신하지 않는다.
 - 서버 파일 저장 완료만으로 설치 성공을 단정하지 않았다. 현재 WSL 세션 정상 동작과 실패한 `code .` 경로의 복구 여부는 구분했다.
+- SSH 키 생성·호스트 확인만으로 본인 인증이 끝났다고 보지 않는다. GitHub 웹의 추가 확인 완료, 본인 계정 인사말, 실제 push를 차례로 확인한다.
 
 ## 8. 보안 점검
 
@@ -299,7 +301,7 @@ Git은 로컬에서 변경 이력과 브랜치를 관리하는 도구이고, Git
 
 [환경 변수·NGINX 내부 포트 검증](docs/09-compose-env.md) — 같은 이미지에서 8080/9090 설정·포트·HTTP를 비교하고 종료 후 상태를 확인했다.
 
-[GitHub SSH 인증·push 검증](docs/10-github-ssh.md) — 본인 계정 인증, 저장소별 키·SSH 원격 설정, 실제 변경 전송과 로컬·원격 main SHA 일치를 확인했다. 검증 커밋은 9088c08f6e8ec2cbe90bba1c5f3909ef805f9777이다.
+[GitHub SSH 인증·push 검증](docs/10-github-ssh.md) — 본인 계정 인증, 저장소별 키·SSH 원격 설정, 실제 변경 전송과 로컬·원격 main SHA 일치를 확인했다. 검증 커밋은 [9088c08f6e8ec2cbe90bba1c5f3909ef805f9777](https://github.com/Asheli1a/1-Setting-Up-a-Workspace-/commit/9088c08f6e8ec2cbe90bba1c5f3909ef805f9777)이다.
 
 ## 10. 남은 필수 확인
 

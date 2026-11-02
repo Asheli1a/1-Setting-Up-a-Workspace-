@@ -2,7 +2,7 @@
 
 ## 기록 원칙 및 현황
 
-2026-10-31까지 제공된 실제 실행 결과와 캡처를 기준으로 정리했다. 오류·환경 설정 문제 6건 중 5건은 해결 결과를 확인했고, VS Code Server 설치 실패 1건은 원인 미확인으로 남겼다. 미해결 설치 메시지와 현재 WSL 개발 세션의 정상 동작은 구분한다.
+2026-11-02까지 제공된 실제 실행 결과와 캡처를 기준으로 정리했다. 오류·환경 설정 문제 7건 중 6건은 해결 결과를 확인했고, VS Code Server 설치 실패 1건은 원인 미확인으로 남겼다. 미해결 설치 메시지와 현재 WSL 개발 세션의 정상 동작은 구분한다.
 
 | 번호 | 문제 | 상태 |
 |---|---|---|
@@ -12,6 +12,7 @@
 | 4 | VSCode의 Windows PowerShell에서 Ubuntu Git을 찾지 못함 | 해결 완료 |
 | 5 | 공용 노트북의 VSCode에 타인 GitHub 계정이 로그인됨 | 본인 계정 전환 및 설정 확인 완료 |
 | 6 | code 실행 중 VS Code Server 설치 실패 | 원인 미확인 / 현재 WSL 작업은 가능 |
+| 7 | GitHub SSH 추가 이메일 확인 미완료 상태에서 인증 시도 | 확인 완료 후 같은 키로 인증·SSH push 성공 |
 
 ### 증거 편집 원칙
 
@@ -325,7 +326,7 @@ Merge made by the 'ort' strategy.
  create mode 100644 docs/images/web-8081.png
 ```
 
-실제 파일 충돌 없이 자동 병합됐으며, 병합 커밋 `3576cc1`이 생성됐다.
+실제 파일 충돌 없이 자동 병합됐으며, 병합 커밋 [3576cc1](https://github.com/Asheli1a/1-Setting-Up-a-Workspace-/commit/3576cc1eecb4e20d049f57b48f0b86c610101b6b)이 생성됐다.
 강제 push나 기존 커밋 삭제는 사용하지 않았다.
 
 ### 재검증
@@ -599,12 +600,77 @@ Windows에 설치된 VSCode의 실행 스크립트를 호출하고 있었다. �
 
 위 항목은 가능한 진단 계획이며 확인된 원인이나 실행 완료 항목이 아니다.
 
-## 7. 최종 정리
+## 7. GitHub SSH 인증 실패
+
+- 수행 일자: 2026-11-02
+- 상태: 추가 이메일 확인 완료 후 같은 키로 인증 및 실제 SSH push 성공
+
+### 증상
+
+실습 전용 키를 생성하고 공개키를 출력한 뒤 SSH 연결을 시도했다. GitHub 호스트 확인은 진행됐지만 계정 인증은 아래처럼 실패했다. 출력은 관련 부분만 발췌했다.
+
+```console
+$ ssh -F /dev/null \
+  -o IdentitiesOnly=yes \
+  -o IdentityAgent=none \
+  -i "$HOME/.ssh/codyssey-asheli1a/id_ed25519" \
+  -T git@github.com
+[최초 호스트 확인 등의 중간 출력 생략]
+git@github.com: Permission denied (publickey).
+
+$ echo "SSH exit code: $?"
+SSH exit code: 255
+```
+
+### 원인 가설과 확인 범위
+
+공개키 미등록·등록 계정·키 유형·실제 사용 키 등을 확인할 필요가 있었다. 이후 GitHub 웹에 추가 이메일 확인 페이지가 열려 있었지만, 이를 완료하지 않은 채 터미널 시험을 진행했던 것을 작성자가 확인했다.
+
+이번 실수는 웹에서 요구한 추가 확인 완료 여부를 확인하지 않고 다음 단계로 진행한 것이다. 이메일 확인을 마친 뒤 같은 키 경로·지문으로 인증에 성공했다. 다만 GitHub 내부의 최초 거부 사유를 별도로 조회한 것은 아니므로 모든 publickey 오류가 이메일 확인 때문이라고 일반화하지 않는다.
+
+### 해결
+
+GitHub 웹에서 요구한 이메일 확인을 완료하고 같은 키로 SSH 인증을 다시 시도했다. 해결을 위해 키를 재생성하거나 타인 키·known_hosts를 삭제하지 않았다. 이메일 확인 코드·개인키·암호 문구의 값은 공개하지 않았다.
+
+### 재검증
+
+다음은 실제 verbose 출력의 핵심 부분이다.
+
+```console
+$ ssh -F /dev/null \
+  -o IdentitiesOnly=yes \
+  -o IdentityAgent=none \
+  -i "$HOME/.ssh/codyssey-asheli1a/id_ed25519" \
+  -vT git@github.com
+[접속·키 교환 등의 상세 debug 출력 생략]
+debug1: Host 'github.com' is known and matches the ED25519 host key.
+debug1: Server accepts key: /home/user/.ssh/codyssey-asheli1a/id_ed25519 ED25519 SHA256:UGCi4CrIpDFV0+Iuuq23HT92Q1TrRyP0Wm75ziYrOSs explicit
+Enter passphrase for key '/home/user/.ssh/codyssey-asheli1a/id_ed25519':
+Authenticated to github.com ([20.200.245.247]:22) using "publickey".
+[후속 debug 출력 생략]
+Hi Asheli1a! You've successfully authenticated, but GitHub does not provide shell access.
+debug1: Exit status 1
+```
+
+본인 계정 Asheli1a의 인증 성공을 확인했다. 이 성공 인사말과 함께 나온 종료 상태 1은 셸을 제공하지 않는 GitHub 연결 결과이며, 앞선 인증 실패 255와 구분했다.
+
+이후 저장소별 사용 키와 SSH 원격 주소를 설정하고 실제 변경 커밋 [9088c08f6e8ec2cbe90bba1c5f3909ef805f9777](https://github.com/Asheli1a/1-Setting-Up-a-Workspace-/commit/9088c08f6e8ec2cbe90bba1c5f3909ef805f9777)을 전송했다. 로컬 HEAD와 원격 main의 전체 SHA 일치도 확인했다. 설정·push의 전체 기록은 [SSH 인증 및 push 검증](10-github-ssh.md#4-저장소별-ssh-설정과-실제-push)에 유지한다.
+
+### 배운 점 및 재발 방지
+
+- 웹의 키 등록·추가 확인 절차가 끝났는지 확인하고 터미널 시험으로 넘어간다.
+- 호스트 키 확인, 계정 인증, 저장소 push 권한 검증을 구분한다.
+- Permission denied만 보고 곧바로 키를 재생성하거나 설정·기존 호스트 기록을 삭제하지 않는다.
+- 공개키 지문·서버의 키 수락·본인 계정 인사말을 확인한다.
+- 이메일 확인 코드와 개인키·암호 문구는 증거에 넣지 않는다.
+
+## 8. 최종 정리
 
 - 사례 1~3: 기존 Docker·HTTPS 인증·Git 이력 문제의 해결 기록을 유지했다.
 - 사례 4: Windows PowerShell과 Ubuntu Bash의 실행 환경 차이를 확인하고 해결했다.
 - 사례 5: 공용 장비의 계정 혼동을 바로잡고, 인증과 커밋 작성자 설정을 따로 검증했다.
 - 사례 6: 설치 실패는 미해결로 공개하되 현재 세션 정상 동작과 구분했다.
+- 사례 7: GitHub 웹의 추가 이메일 확인을 완료하지 않은 채 SSH를 시험한 뒤, 확인 완료·같은 키 재시험·실제 SSH push로 해결을 검증했다.
 - 캡처의 크롭과 공개본의 실명 가림은 가독성·개인정보 보호를 위한 편집이며, 포트·버전·상태 등 검증 결과는 바꾸지 않았다.
 
 [프로젝트 README](../README.md)

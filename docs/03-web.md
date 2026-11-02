@@ -323,7 +323,7 @@ clone에 포함된 Dockerfile과 소스로 이미지를 빌드했다.
 - clone 폴더 생성 시각: 16:52:51 KST — 폴더명 기준
 - HTTP 응답 시각: 16:57:15 KST — 응답 Date의 07:57:15 GMT를 변환
 - clone 경로: `/home/user/workspace-validation-20261031-165251`
-- 검증 커밋 SHA: `ab1ce1a5854d598ea058c41d885a58fb826ff0a5`
+- 검증 커밋 SHA: [ab1ce1a5854d598ea058c41d885a58fb826ff0a5](https://github.com/Asheli1a/1-Setting-Up-a-Workspace-/commit/ab1ce1a5854d598ea058c41d885a58fb826ff0a5)
 - 이미지: `workspace-web:verification`
 - 표시된 이미지 ID: `ab1af61d1419`
 - 컨테이너: `workspace-verify-18080`, `workspace-verify-18081`
@@ -546,7 +546,7 @@ $ docker logs --tail 20 workspace-verify-18080
 
 | 검증 항목 | 관찰 결과 |
 |---|---|
-| 검증 커밋 | ab1ce1a5854d598ea058c41d885a58fb826ff0a5 |
+| 검증 커밋 | [ab1ce1a5854d598ea058c41d885a58fb826ff0a5](https://github.com/Asheli1a/1-Setting-Up-a-Workspace-/commit/ab1ce1a5854d598ea058c41d885a58fb826ff0a5) |
 | 새 clone | 기존 프로젝트 바깥의 별도 폴더 |
 | clone 직후 상태 | git status --short 출력 없음 |
 | 빌드 | FINISHED / workspace-web:verification |

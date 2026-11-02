@@ -7,7 +7,7 @@
 - GitHub 계정: `Asheli1a`
 - 키 방식: ED25519, 실습 전용 경로 사용
 - 현재 확인: 키 생성·본인 계정 인증·저장소별 SSH 설정·실제 push·원격 SHA 대조 완료
-- 실제 검증 커밋: `9088c08f6e8ec2cbe90bba1c5f3909ef805f9777`
+- 실제 검증 커밋: [9088c08f6e8ec2cbe90bba1c5f3909ef805f9777](https://github.com/Asheli1a/1-Setting-Up-a-Workspace-/commit/9088c08f6e8ec2cbe90bba1c5f3909ef805f9777)
 
 개인키·암호 문구·이메일 확인 코드는 기록하지 않는다. 공개키 원문 전체 대신 지문과 인증 성공 결과를 남긴다. 아래 console 블록은 실제 제공된 명령·출력 중 필요한 부분을 발췌한 것이다.
 
@@ -38,6 +38,8 @@ $ ssh-keygen -lf "$key.pub"
 실제 생성 명령은 같은 경로에 파일이 없을 때만 실행하는 조건문 안에서 수행했다. 위에는 그 안에서 실행된 핵심 명령과 출력만 발췌했다. 개인키 내용을 출력하거나 저장소에 추가하지 않았다.
 
 ## 3. 인증 실패와 재확인
+
+중앙 트러블슈팅 기록은 [사례 7: GitHub SSH 인증 실패](06-troubleshooting.md#7-github-ssh-인증-실패)를 참조한다. 아래 인증 증거와 이 문서의 실제 push 기록은 유지한다.
 
 ### 증상
 
@@ -180,10 +182,16 @@ Enter passphrase for key '/home/user/.ssh/codyssey-asheli1a/id_ed25519':
 | 사용할 키 설정 | 현재 저장소의 core.sshCommand |
 | 설정 출처 | file:.git/config |
 | 원격 | git@github.com:Asheli1a/1-Setting-Up-a-Workspace-.git |
-| 실제 SSH push | d9a3a4e → 9088c08 / main → main |
-| 대조한 로컬·원격 SHA | 9088c08f6e8ec2cbe90bba1c5f3909ef805f9777 |
+| 실제 SSH push | [d9a3a4e](https://github.com/Asheli1a/1-Setting-Up-a-Workspace-/commit/d9a3a4efc0e334b3743cc2848efd18abef3c3290) → [9088c08](https://github.com/Asheli1a/1-Setting-Up-a-Workspace-/commit/9088c08f6e8ec2cbe90bba1c5f3909ef805f9777) / main → main |
+| 대조한 로컬·원격 SHA | [9088c08f6e8ec2cbe90bba1c5f3909ef805f9777](https://github.com/Asheli1a/1-Setting-Up-a-Workspace-/commit/9088c08f6e8ec2cbe90bba1c5f3909ef805f9777) |
 
 이 문서를 완성하는 후속 커밋은 별도로 생긴다. 위 SHA는 실제 SSH push를 확인한 검증 커밋으로 유지하며, 후속 문서 커밋을 처음부터 검증했던 것처럼 바꾸지 않는다.
+
+### 검증 커밋과 후속 기록 커밋
+
+- 실제 SSH push를 확인한 커밋: [9088c08f6e8ec2cbe90bba1c5f3909ef805f9777](https://github.com/Asheli1a/1-Setting-Up-a-Workspace-/commit/9088c08f6e8ec2cbe90bba1c5f3909ef805f9777)
+- push 결과와 README 체크리스트를 정리한 후속 커밋: [39ec3c8944fe94ccdc478d5ab4b74dbe6a7a60c4](https://github.com/Asheli1a/1-Setting-Up-a-Workspace-/commit/39ec3c8944fe94ccdc478d5ab4b74dbe6a7a60c4)
+- 두 커밋은 역할이 다르다. 실제 전송 검증 SHA를 후속 문서 커밋 SHA로 바꾸지 않는다.
 
 ## 5. 보안·공용 장비 관리
 
