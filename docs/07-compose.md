@@ -9,7 +9,7 @@
 - Docker Compose: v5.6.1
 - 단일 서비스 빌드·실행·HTTP·브라우저·로그 확인 완료
 - up·ps·logs·down 및 종료 후 상태 확인 완료
-- 이 문서는 단일 서비스 기록이다. 멀티 컨테이너는 [08 문서](08-compose-multi.md), 환경 변수는 [09 문서](09-compose-env.md)에 별도로 기록한다. SSH 인증은 이후 별도 실습이다.
+- 이 문서는 단일 서비스 기록이다. 멀티 컨테이너는 [08 문서](08-compose-multi.md), 환경 변수는 [09 문서](09-compose-env.md)에 별도로 기록한다. SSH 인증·push는 [10 문서](10-github-ssh.md)의 별도 실습으로 기록했다.
 
 아래 console 블록은 제공된 실제 명령과 출력이다. 프롬프트를 `$`로 정리하고 명령별 출력을 대응시켰다. 긴 초기 환경 출력은 필요한 부분만 발췌했다고 표시했으며, 결과를 새로 만들어 넣지 않았다.
 
@@ -27,7 +27,7 @@ Dockerfile은 이미지를 어떻게 만들지 정의하고, Compose 파일은 �
 | Compose 운영 명령 | 완료 — up·ps·logs·down 및 종료 후 목록 확인 |
 | 멀티 컨테이너 통신 | 별도 실습 완료 — [08 문서](08-compose-multi.md) |
 | 환경 변수 동작 변경 | 별도 실습 완료 — [09 문서](09-compose-env.md) |
-| GitHub SSH 인증 | 미수행 — 별도 실습 |
+| GitHub SSH 인증 | 별도 실습 완료 — [10 문서](10-github-ssh.md) |
 
 공식 설명: [What is Docker Compose?](https://docs.docker.com/get-started/docker-concepts/the-basics/what-is-docker-compose/)
 
@@ -376,8 +376,8 @@ README에서는 단일 서비스와 up/down/ps/logs를 완료로 표시한다. �
 
 같은 이미지에서 NGINX 설정 템플릿과 환경 변수를 연결해 내부 listen 포트 8080/9090, 실제 매핑, HTTP 응답을 비교했다. 실행과 종료의 실제 결과는 [09 환경 변수 기록](09-compose-env.md)을 참조한다.
 
-### 후속 SSH 인증
+### SSH 인증 — 별도 실습 완료
 
-Compose와 별개로 본인 키의 GitHub SSH 인증과 실제 push를 확인한다. 개인키를 저장소에 넣거나 공용 장비의 타인 키를 덮어쓰지 않는다.
+본인 키의 GitHub SSH 인증과 실제 push·원격 SHA 대조는 [10 SSH 기록](10-github-ssh.md)에 남겼다. 개인키를 저장소에 넣거나 공용 장비의 타인 키를 덮어쓰지 않는 원칙은 유지한다.
 
 [NGINX 이미지·포트 실습](03-web.md) · [스토리지 실습](04-storage.md) · [Git·GitHub·VSCode 연동](05-git-github.md) · [프로젝트 README](../README.md)

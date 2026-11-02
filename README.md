@@ -52,6 +52,7 @@
 | [07-compose](docs/07-compose.md) | Compose 단일 서비스·실행·접속·종료 | 단일 서비스 및 up/down/ps/logs 검증 완료 |
 | [08-compose-multi](docs/08-compose-multi.md) | Compose 두 서비스·내부 통신·종료 | 실제 로그 검증 완료 |
 | [09-compose-env](docs/09-compose-env.md) | 환경 변수·NGINX 내부 포트·동일 이미지·종료 | 8080/9090 실제 비교 검증 완료 |
+| [10-github-ssh](docs/10-github-ssh.md) | SSH 계정 인증·실제 push·원격 SHA | 실제 전송 검증 완료 |
 
 실습 기록의 검토 기준은 2026-10-31까지 제공된 파일과 실행 결과이며, 보안 점검·실명 비식별화는 2026-11-02에 추가 반영했다. 문서 편집 완료와 필수 과제 전체 완료는 구분한다. 05 문서는 원격에서 내용과 캡처 링크를 확인했다. 웹 서버는 커밋 ab1ce1a5854d598ea058c41d885a58fb826ff0a5의 별도 clone에서 재현했다.
 
@@ -290,13 +291,15 @@ Git은 로컬에서 변경 이력과 브랜치를 관리하는 도구이고, Git
 - [x] Compose 멀티 컨테이너 및 통신 검증
 - [x] Compose up/down/ps/logs 사용
 - [x] 환경 변수 변경 검증
-- [ ] GitHub SSH 인증
+- [x] GitHub SSH 인증
 
 [Compose 단일 서비스 실행·접속·종료 검증](docs/07-compose.md) — 단일 서비스와 up·ps·logs·down 검증 완료.
 
 [Compose 멀티 컨테이너 통신·종료 검증](docs/08-compose-multi.md) — 두 서비스 실행, client → web 요청, 네트워크·서버 로그 대조, 종료 후 상태 확인 완료.
 
-[환경 변수·NGINX 내부 포트 검증](docs/09-compose-env.md) — 같은 이미지에서 8080/9090 설정·포트·HTTP를 비교하고 종료 후 상태를 확인했다. GitHub SSH 인증은 이후 별도로 진행한다.
+[환경 변수·NGINX 내부 포트 검증](docs/09-compose-env.md) — 같은 이미지에서 8080/9090 설정·포트·HTTP를 비교하고 종료 후 상태를 확인했다.
+
+[GitHub SSH 인증·push 검증](docs/10-github-ssh.md) — 본인 계정 인증, 저장소별 키·SSH 원격 설정, 실제 변경 전송과 로컬·원격 main SHA 일치를 확인했다. 검증 커밋은 9088c08f6e8ec2cbe90bba1c5f3909ef805f9777이다.
 
 ## 10. 남은 필수 확인
 

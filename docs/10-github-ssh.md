@@ -6,9 +6,8 @@
 - 실행 위치: WSL Ubuntu의 `~/dev-workstation`
 - GitHub 계정: `Asheli1a`
 - 키 방식: ED25519, 실습 전용 경로 사용
-- 현재 확인: 키 생성·공개키 지문·본인 계정 SSH 인증 성공
-- 아직 미기록: SSH 원격 설정·실제 변경 커밋의 SSH push·원격 반영 결과
-- README SSH 완료 체크는 실제 push 결과를 확보한 뒤 처리한다.
+- 현재 확인: 키 생성·본인 계정 인증·저장소별 SSH 설정·실제 push·원격 SHA 대조 완료
+- 실제 검증 커밋: `9088c08f6e8ec2cbe90bba1c5f3909ef805f9777`
 
 개인키·암호 문구·이메일 확인 코드는 기록하지 않는다. 공개키 원문 전체 대신 지문과 인증 성공 결과를 남긴다. 아래 console 블록은 실제 제공된 명령·출력 중 필요한 부분을 발췌한 것이다.
 
@@ -78,20 +77,113 @@ debug1: Exit status 1
 
 복사 과정에서 생긴 mailto 링크 표기는 명령의 일반 텍스트로 정리했다. 암호 문구의 내용은 수집하거나 기록하지 않았다.
 
-## 4. 다음 검증 — 아직 실제 로그 아님
+## 4. 저장소별 SSH 설정과 실제 push
 
-현재 저장소의 원격 URL과 기존 core.sshCommand를 확인한 뒤, 이번 저장소에 한정해 실습 키를 사용하도록 설정하고 SSH 원격 주소를 적용한다. 실제 입력·출력은 수행 후 이 절에 추가한다.
+### 기존 설정 확인과 실습 키 지정
 
-확인할 항목:
+```console
+$ git config --show-origin --get core.sshCommand
 
-- 저장소별 core.sshCommand와 설정 출처
-- origin의 SSH 주소
-- SSH로 조회한 원격 main SHA
-- 이 문서 같은 실제 파일 변경 커밋
-- 해당 변경의 SSH push 결과
-- 로컬 HEAD와 원격 main SHA 일치
+$ git config --local core.sshCommand \
+  "ssh -F /dev/null -o IdentitiesOnly=yes -o IdentityAgent=none -i $HOME/.ssh/codyssey-asheli1a/id_ed25519"
 
-빈 커밋을 만들거나 Everything up-to-date만으로 새 변경의 push 검증을 완료했다고 기록하지 않는다.
+$ git config --show-origin --get core.sshCommand
+file:.git/config        ssh -F /dev/null -o IdentitiesOnly=yes -o IdentityAgent=none -i /home/user/.ssh/codyssey-asheli1a/id_ed25519
+```
+
+최초 조회는 출력이 없었다. 저장소별 설정을 추가한 뒤 `.git/config` 출처와 사용할 키 경로를 확인했다. 전역 SSH 설정을 변경하지 않았고 `.git/config` 자체를 커밋하지 않았다.
+
+### 원격 주소와 SSH 읽기 확인
+
+```console
+$ git remote set-url origin \
+  git@github.com:Asheli1a/1-Setting-Up-a-Workspace-.git
+
+$ git remote -v
+origin  git@github.com:Asheli1a/1-Setting-Up-a-Workspace-.git (fetch)
+origin  git@github.com:Asheli1a/1-Setting-Up-a-Workspace-.git (push)
+
+$ git ls-remote origin refs/heads/main
+Enter passphrase for key '/home/user/.ssh/codyssey-asheli1a/id_ed25519':
+d9a3a4efc0e334b3743cc2848efd18abef3c3290        refs/heads/main
+```
+
+origin의 fetch·push 주소가 SSH 형식이며 지정한 키로 원격 main을 조회할 수 있었다. 암호 문구 입력 프롬프트는 기록하되 입력값은 기록하지 않았다.
+
+### 실제 변경 파일과 커밋·push
+
+인증 기록 문서를 추가한 실제 변경을 사용했다. 다음은 스테이징 대상·커밋·push의 실제 출력이며, 빈 커밋이나 Everything up-to-date를 새 전송 증거로 대신하지 않았다.
+
+```console
+$ git add -- docs/10-github-ssh.md
+
+$ git diff --cached --check
+
+$ git diff --cached --stat
+ docs/10-github-ssh.md | 114 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 114 insertions(+)
+
+$ git diff --cached --name-only
+docs/10-github-ssh.md
+
+$ git commit -m "docs: record github ssh authentication evidence"
+[main 9088c08] docs: record github ssh authentication evidence
+ 1 file changed, 114 insertions(+)
+ create mode 100755 docs/10-github-ssh.md
+
+$ git push origin main
+Enter passphrase for key '/home/user/.ssh/codyssey-asheli1a/id_ed25519':
+Enumerating objects: 6, done.
+Counting objects: 100% (6/6), done.
+Delta compression using up to 8 threads
+Compressing objects: 100% (4/4), done.
+Writing objects: 100% (4/4), 3.04 KiB | 3.04 MiB/s, done.
+Total 4 (delta 2), reused 0 (delta 0), pack-reused 0 (from 0)
+remote: Resolving deltas: 100% (2/2), completed with 2 local objects.
+To github.com:Asheli1a/1-Setting-Up-a-Workspace-.git
+   d9a3a4e..9088c08  main -> main
+```
+
+주소가 SSH 형식인 origin으로 실제 새 커밋이 전송됐다. 최초 추가 당시의 100755 모드는 실행 비트가 설정된 문서라는 뜻으로 기록을 유지했다. 일반 Markdown 문서의 실행 비트 정리는 이후 마무리 커밋에서 별도로 확인할 수 있으며, 이 과거 출력은 수정하지 않는다.
+
+### 로컬·원격 main 대조
+
+```console
+$ git status
+On branch main
+Your branch is up to date with 'origin/main'.
+
+Untracked files:
+  (use "git add <file>..." to include in what will be committed)
+        1-Setting-Up-a-Workspace-/
+        cli-practice/basic-ops/
+        cli-practice/permissions/
+
+nothing added to commit but untracked files present (use "git add" to track)
+
+$ git log -1 --oneline
+9088c08 (HEAD -> main, origin/main, origin/HEAD) docs: record github ssh authentication evidence
+
+$ git rev-parse HEAD
+9088c08f6e8ec2cbe90bba1c5f3909ef805f9777
+
+$ git ls-remote origin refs/heads/main
+Enter passphrase for key '/home/user/.ssh/codyssey-asheli1a/id_ed25519':
+9088c08f6e8ec2cbe90bba1c5f3909ef805f9777        refs/heads/main
+```
+
+로컬 HEAD와 원격 main이 같은 전체 SHA였다. 미추적 실습 폴더는 새 커밋에 포함하지 않았다.
+
+| 검증 항목 | 실제 결과 |
+|---|---|
+| 인증 계정 | Asheli1a |
+| 사용할 키 설정 | 현재 저장소의 core.sshCommand |
+| 설정 출처 | file:.git/config |
+| 원격 | git@github.com:Asheli1a/1-Setting-Up-a-Workspace-.git |
+| 실제 SSH push | d9a3a4e → 9088c08 / main → main |
+| 대조한 로컬·원격 SHA | 9088c08f6e8ec2cbe90bba1c5f3909ef805f9777 |
+
+이 문서를 완성하는 후속 커밋은 별도로 생긴다. 위 SHA는 실제 SSH push를 확인한 검증 커밋으로 유지하며, 후속 문서 커밋을 처음부터 검증했던 것처럼 바꾸지 않는다.
 
 ## 5. 보안·공용 장비 관리
 
@@ -106,9 +198,9 @@ debug1: Exit status 1
 
 - [x] 실습 전용 키 생성·공개키 지문 확인
 - [x] GitHub 추가 확인 후 같은 키로 본인 계정 인증 성공
-- [ ] 저장소의 SSH 원격·사용 키 설정 확인
-- [ ] 실제 변경 커밋의 SSH push 성공
-- [ ] 로컬·원격 main SHA 대조
+- [x] 저장소의 SSH 원격·사용 키 설정 확인
+- [x] 실제 변경 커밋의 SSH push 성공
+- [x] 로컬·원격 main SHA 대조
 - [ ] 새 문서·로그 최종 공개 정보 검토
 
 [Git·GitHub·VSCode 기록](05-git-github.md) · [환경 변수 실습](09-compose-env.md) · [프로젝트 README](../README.md)
