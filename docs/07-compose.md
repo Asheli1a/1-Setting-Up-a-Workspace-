@@ -359,7 +359,7 @@ CONTAINER ID   IMAGE     COMMAND   CREATED   STATUS    PORTS     NAMES
 
 README에서는 단일 서비스와 up/down/ps/logs를 완료로 표시한다. 멀티 컨테이너·환경 변수·SSH 항목은 별도 실습이다.
 
-## 12. 재현 주의사
+## 12. 재현 주의사항
 
 - 모든 Compose 명령에서 같은 `-p workspace-bonus-single`과 `-f docker-compose.yml`을 사용한다.
 - 프로젝트 이름을 구분해도 같은 호스트 포트 충돌은 피할 수 없으므로 다른 환경에서는 포트 점유를 확인한다.
