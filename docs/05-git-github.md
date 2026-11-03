@@ -2,13 +2,13 @@
 
 ## 목적 및 기록 범위
 
-Git 작성자 정보·기본 브랜치·기존 원격 저장소를 확인하고, VSCode의 WSL 개발 환경과 본인 GitHub 계정 연동을 검증했다.
+Git 정보·기본 브랜치·기존 원격 저장소를 확인하고, VSCode의 WSL 개발 환경과 본인 GitHub 계정 연동을 검증했다.
 
 - 수행 일자: 2026-10-31 — 초기 GitHub 인증·push는 앞선 2026-10-29 기록도 참조
 - 장비: 공용 실습 노트북
 - 실행 위치: WSL Ubuntu의 `~/dev-workstation`
 - 아래 로그는 실제로 제공한 실행 결과다. 프롬프트와 열 간격을 정리하고, 복사 중 생긴 이메일 mailto·URL 링크 변형을 일반 텍스트로 복원했다.
-- 초기 전역 설정 조회와 이후 저장소별 작성자 설정을 시점별로 구분한다. 최종 local 설정 후 전체 config를 다시 출력한 것처럼 작성하지 않았다.
+- 초기 전역 설정 조회와 이후 저장소별 설정을 시점별로 구분한다. 최종 local 설정 후 전체 config를 다시 출력한 것처럼 작성하지 않았다.
 
 ## Git 사용자 정보·기본 브랜치 및 원격 확인
 
@@ -45,16 +45,16 @@ origin  https://github.com/Asheli1a/1-Setting-Up-a-Workspace-.git (push)
 
 | 확인 항목 | 초기 조회 결과 |
 |---|---|
-| 작성자 이름 | Asheli1a |
-| 작성자 이메일 | 224024412+Asheli1a@users.noreply.github.com |
-| 초기 작성자 설정 출처 | /home/user/.gitconfig |
+| 이름 | Asheli1a |
+| 이메일 | 224024412+Asheli1a@users.noreply.github.com |
+| 초기 설정 출처 | /home/user/.gitconfig |
 | 기본 브랜치 설정 | main |
 | 현재 브랜치 | main |
 | 원격 저장소 | origin / 기존 과제 저장소 |
 
 기본 브랜치 설정과 현재 브랜치는 따로 조회했다. 이메일은 GitHub에서 확인한 본인 noreply 주소이며 GitHub 로그인 비밀번호나 인증 토큰이 아니다.
 
-### 전체 설정 조회 — 저장소별 작성자 설정을 추가하기 전
+### 전체 설정 조회 — 저장소별 설정을 추가하기 전
 
 ```console
 $ git config --list
@@ -89,7 +89,7 @@ To https://github.com/Asheli1a/1-Setting-Up-a-Workspace-.git
 branch 'main' set up to track 'origin/main'.
 ```
 
-이것은 과거 첫 push의 성공 증거이며, 아래 local 설정 후 새 커밋 작성자까지 재검증한 로그는 아니다. 이후 웹 업로드로 분기된 이력을 병합하고 push한 기록도 별도 트러블슈팅에 남겼다.
+이것은 과거 첫 push의 성공 증거이며, 아래 local 설정 후 새 커밋까지 재검증한 로그는 아니다. 이후 웹 업로드로 분기된 이력을 병합하고 push한 기록도 별도 트러블슈팅에 남겼다.
 
 - [HTTPS 인증 및 첫 push](06-troubleshooting.md#2-github-https-push-인증-실패)
 - [원격 웹 업로드와 로컬 변경 통합](06-troubleshooting.md#3-github-웹-업로드-후-push-거부-및-브랜치-분기)
@@ -165,11 +165,10 @@ origin  https://github.com/Asheli1a/1-Setting-Up-a-Workspace-.git (push)
 현재 VSCode WSL 창에서의 Git·저장소 조회는 정상 동작했다.
 
 
-### 공용 장비를 고려한 저장소별 작성자 설정
+### 공용 장비를 고려한 저장소별 설정
 
-초기에는 전역 설정에서 작성자 정보를 확인했다.
-이후 공용 실습 노트북임을 고려해 현재 저장소에도
-본인의 작성자 정보를 명시적으로 설정했다.
+초기에는 전역 설정에서 정보를 확인했다.
+이후 공용 실습 노트북임을 고려해 현재 저장소에도 본인의 정보를 명시적으로 설정했다.
 
 ```console
 $ git config --local user.name "Asheli1a"
@@ -184,8 +183,7 @@ file:.git/config        224024412+Asheli1a@users.noreply.github.com
 
 ### GitHub CLI 인증 재확인
 
-VSCode의 WSL 통합 터미널과 외부 Ubuntu 터미널에서
-`gh auth status --hostname github.com`을 실행했다.
+VSCode의 WSL 통합 터미널과 외부 Ubuntu 터미널에서 `gh auth status --hostname github.com`을 실행했다.
 
 두 환경 모두 다음을 확인했다.
 
@@ -204,7 +202,7 @@ github.com
   - Git operations protocol: https
 ```
 
-![CLI 인증 및 저장소별 Git 작성자 설정 증거](images/vscode-auth-local-config.png)
+![CLI 인증 및 저장소별 Git 설정 증거](images/vscode-auth-local-config.png)
 
 이미지에 일부 긴 줄이 줄바꿈·잘림으로 표시되는 부분은 원본 그대로이며, 이메일 전체 값은 위 텍스트 로그에서 확인한다.
 
@@ -212,8 +210,8 @@ github.com
 
 | 항목 | 확인 결과 |
 |---|---|
-| 초기 전역 작성자 정보 | /home/user/.gitconfig의 본인 이름·noreply |
-| 최종 저장소별 작성자 정보 | .git/config의 본인 이름·동일한 noreply |
+| 초기 전역 정보 | /home/user/.gitconfig의 본인 이름·noreply |
+| 최종 저장소별 정보 | .git/config의 본인 이름·동일한 noreply |
 | 기본 브랜치 설정 | 전역 main — local 변경 대상 아님 |
 | 현재 프로젝트 브랜치 | main |
 | 기존 GitHub 원격 및 push | 확인 |
@@ -222,7 +220,7 @@ github.com
 | CLI 활성 계정 | Asheli1a / HTTPS |
 | 외부 code . 서버 설치 오류 | 원인 미확인, 현재 WSL 세션 정상과 구분 |
 
-Git 작성자 정보는 커밋 메타데이터이고 원격 인증과는 별개다. GitHub 원격 URL이 본인 저장소라는 사실만으로 현재 인증 계정까지 확인한 것은 아니므로 VSCode 계정과 CLI 활성 계정을 각각 확인했다.
+Git 정보는 커밋 메타데이터이고 원격 인증과는 별개다. GitHub 원격 URL이 본인 저장소라는 사실만으로 현재 인증 계정까지 확인한 것은 아니므로 VSCode 계정과 CLI 활성 계정을 각각 확인했다.
 
 ## 문제 해결 기록과 남은 확인
 
@@ -232,6 +230,6 @@ Git 작성자 정보는 커밋 메타데이터이고 원격 인증과는 별개�
 
 초기 Git 설정·현재 저장소별 설정·실제 계정 연동 결과는 확인했다. local 설정 후 생성한 커밋의 Author/Committer 메타데이터와 새 환경 전체 재현은 별도로 확인하지 않았다. 이를 완료한 것처럼 기록하지 않는다.
 
-매일 작업 종료 시 웹 브라우저의 코디세이·GitHub 등 본인 로그인 세션과 VSCode 계정을 확인하고 로그아웃한다. CLI의 본인 인증 상태도 확인하고 장비 정책에 따라 정리한다. 장비 자체를 반납해야 할 경우에는 본인 VSCode·CLI·브라우저 인증과 설정 동기화 상태까지 확인·정리한다. 다른 사용자의 인증정보나 설정은 일괄 삭제하지 않는다. 이는 관리 방침이며 특정 시점의 모든 인증 정리를 이미 수행했다는 뜻은 아니다. 현재 제출 자료의 검토 범위는 [README 보안 점검](../README.md#8-보안-점검)을 참조한다.
+매일 작업 종료 시 웹 브라우저의 코디세이·GitHub 등 본인 로그인 세션과 VSCode 계정을 확인하고 로그아웃한다. 장비 자체를 반납해야 할 경우에는 본인 VSCode·CLI·브라우저 인증과 설정 동기화 상태까지 확인·정리한다. 다른 사용자의 인증정보나 설정은 일괄 삭제하지 않는다. 이는 관리 방침이며 특정 시점의 모든 인증 정리를 이미 수행했다는 뜻은 아니다. 현재 제출 자료의 검토 범위는 [README 보안 점검](../README.md#8-보안-점검)을 참조한다.
 
 [프로젝트 README](../README.md)
