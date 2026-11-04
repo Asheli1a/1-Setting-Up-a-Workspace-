@@ -56,7 +56,7 @@
 | [11-port-conflict](docs/11-port-conflict.md) | Python·Docker 포트 충돌, 점유자 식별·해제·재사용, 매핑 누락 | 2026-11-04 재실습 원본 출력 검증 완료 |
 | [12-volume-backup-restore](docs/12-volume-backup-restore.md) | 볼륨 tar 백업·새 볼륨 복원·체크섬 대조 | 복원·대조 구간 실제 로그 검증 완료 |
 
-실습 기록의 검토 기준은 2026-10-31까지 제공된 파일과 실행 결과이며, 보안 점검·실명 비식별화는 2026-11-02에 추가 반영했다. 포트 충돌(11)과 볼륨 백업·복원(12)은 초기화된 공용 노트북에서 2026-11-03에 다시 수행한 추가 실습이다. 문서 편집 완료와 필수 과제 전체 완료는 구분한다. 05 문서는 원격에서 내용과 캡처 링크를 확인했다. 웹 서버는 커밋 [ab1ce1a5854d598ea058c41d885a58fb826ff0a5](https://github.com/Asheli1a/1-Setting-Up-a-Workspace-/commit/ab1ce1a5854d598ea058c41d885a58fb826ff0a5)의 별도 clone에서 재현했다.
+실습 기록의 검토 기준은 2026-10-31까지 제공된 파일과 실행 결과이며, 보안 점검·실명 비식별화는 2026-11-02에 추가 반영했다. 포트 충돌(11)과 볼륨 백업·복원(12)은 초기화된 공용 노트북에서 2026-11-03에 수행한 추가 실습이다. 포트 충돌은 2026-11-04에 다른 노트북에서 다시 수행해 원본 출력으로 교체했다. 문서 편집 완료와 필수 과제 전체 완료는 구분한다. 05 문서는 원격에서 내용과 캡처 링크를 확인했다. 웹 서버는 커밋 [ab1ce1a5854d598ea058c41d885a58fb826ff0a5](https://github.com/Asheli1a/1-Setting-Up-a-Workspace-/commit/ab1ce1a5854d598ea058c41d885a58fb826ff0a5)의 별도 clone에서 재현했다.
 
 ## 3. 수행 체크리스트
 
@@ -149,6 +149,54 @@ docker rm workspace-web-check-8080 workspace-web-check-8081
 - [기본 조작 및 권한](docs/01-terminal.md): 기본 조작은 파일 생성부터 삭제까지 순서대로 실행한다. 권한 실험은 일반 사용자로 수행한다.
 - [바인드 마운트 및 볼륨](docs/04-storage.md): 원본 v1에서 실험용 복사본을 준비하고, 볼륨 실험은 기존 데이터와 같은 이름의 대상이 없는지 확인한다.
 - 바인드 마운트의 `$(pwd)`는 프로젝트 루트를 기준으로 한다. 개인 사용자 이름이 들어간 절대 경로는 재현 환경의 경로로 바꾼다.
+
+### 4.6. 프로젝트 구조
+
+`git pull` 뒤 `~/dev-workstation`에서 `find`로 확인한 구조다(2026-11-04, `.git`과 `docs/images` 내부는 제외).
+
+```console
+$ find . -maxdepth 2 -not -path './.git*' -not -path './docs/images/*' | sort
+.
+./.dockerignore
+./Dockerfile
+./README.md
+./cli-practice
+./cli-practice/bind-site
+./cli-practice/empty.txt
+./cli-practice/hello.txt
+./cli-practice/port-conflict
+./docker-compose.env.yml
+./docker-compose.multi.yml
+./docker-compose.yml
+./docs
+./docs/01-terminal.md
+./docs/02-docker.md
+./docs/03-web.md
+./docs/04-storage.md
+./docs/05-git-github.md
+./docs/06-troubleshooting.md
+./docs/07-compose.md
+./docs/08-compose-multi.md
+./docs/09-compose-env.md
+./docs/10-github-ssh.md
+./docs/11-port-conflict.md
+./docs/12-volume-backup-restore.md
+./docs/images
+./nginx
+./nginx/env-templates
+./site
+./site/index.html
+```
+
+| 위치 | 역할 |
+|---|---|
+| `Dockerfile`, `.dockerignore`, `site/index.html` | 커스텀 웹 이미지의 소스와 빌드 설정 ([03](docs/03-web.md)) |
+| `docker-compose*.yml`, `nginx/env-templates` | Compose 단일·멀티·환경 변수 실습 설정 ([07](docs/07-compose.md), [08](docs/08-compose-multi.md), [09](docs/09-compose-env.md)) |
+| `cli-practice/bind-site` | 바인드 마운트 실험용 복사본 ([04](docs/04-storage.md)) |
+| `cli-practice/port-conflict` | 포트 충돌 재실습의 웹 파일과 로그 폴더. 이번 clone에서 만든 로컬 폴더이고 커밋하지 않았다 ([11](docs/11-port-conflict.md)) |
+| `docs`, `docs/images` | 실습 기록과 캡처 |
+
+`cli-practice/basic-ops`와 `cli-practice/permissions`는 처음 노트북에서 만든 실습 폴더였고 커밋하지 않았다. 이 실습의 명령과 출력은 [01번 문서](docs/01-terminal.md)에 있다.
 
 ## 5. 요구사항별 검증 결과
 
@@ -301,7 +349,7 @@ Git은 로컬에서 변경 이력과 브랜치를 관리하는 도구이고, Git
 
 ## 8. 보안 점검
 
-- 검토 일자: 2026-11-02
+- 검토 일자: 2026-11-02 (추가 검토 2026-11-04)
 - 검토 범위: 현재 제출 대상 문서·로그·파일 목록과 캡처. 캡처의 육안 검토 완료.
 - 공개 자료의 실명은 `이XX`로 비식별화하고, 이미지의 실명 포함 영역은 불투명하게 가림 처리했다.
 - 웹 페이지 제목의 `루키마리너-1_Asheli1a`는 실명과 관계없이 의도해서 바꾼 표기다. 07~09번 문서의 HTML 출력에 나온다.
@@ -310,6 +358,16 @@ Git은 로컬에서 변경 이력과 브랜치를 관리하는 도구이고, Git
 - [x] Git 설정 출력과 원격 URL에 인증정보가 포함되지 않았는지 검토했다.
 - [x] 캡처의 다른 창·탭·알림과 타인 계정 정보 등을 육안 검토했다.
 - [x] 추적 파일 목록과 민감 파일명 패턴을 검사했다. 해당 패턴에 일치하는 파일은 발견되지 않았다.
+
+2026-11-04에는 11·12번 문서, 06번 사례 8·9, 문서 문장 수정, README 변경을 반영한 `main`(`969e8e5`)을 새로 받아 다시 검색했다. 이번 추가분에는 캡처 이미지가 없다.
+
+```console
+$ git grep -nEi 'gh[pousr]_[A-Za-z0-9]{20,}|github_pat_|AKIA[0-9A-Z]{16}|BEGIN [A-Z ]*PRIVATE KEY|(password|passwd)\s*[:=]\s*\S+' -- . ':!docs/images'
+$ git ls-files | grep -Ei '\.(pem|key|env)$|id_(rsa|ed25519)$' || echo "민감 파일명 패턴 없음"
+민감 파일명 패턴 없음
+```
+
+`git grep`은 일치하는 줄이 없어 출력이 없었다. 마스킹된 토큰 표기(`gho_***…`)는 패턴에 걸리지 않는다. 이 검색은 텍스트 패턴만 확인하므로 이미지 검토는 대체하지 못하고, 전체 과거 이력의 전수 검사도 아니다.
 
 처음부터 실습 자료 작성과 제출 시 비밀번호, 개인 이메일 등 민감정보를 포함하지 않는 방향으로 진행했다. GitHub CLI 인증 상태 출력에서 토큰이 기본적으로 마스킹되어 있음을 확인했으며, 자동 마스킹 여부와 관계없이 공개 전 문서·로그·캡처를 별도로 검토했다.
 
