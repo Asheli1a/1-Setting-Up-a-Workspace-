@@ -116,7 +116,7 @@ $ for file in compose.yaml compose.yml docker-compose.yaml docker-compose.yml
 > done
 ```
 
-파일 확인 반복문은 출력이 없었다. 조회 당시 동일 Compose 프로젝트·대상 이미지·기본 Compose 파일이 표시되지 않았고, ss에서도 해당 리스닝 항목이 표시되지 않았다. ss만으로 Windows·Docker Desktop 전체의 포트 예약까지 확정한 것은 아니며, 이후 실제 실행 성공으로 이번 포트 연결을 확인했다.
+파일 확인 반복문은 출력이 없었다. 조회 당시 동일 Compose 프로젝트·대상 이미지·기본 Compose 파일이 표시되지 않았고, ss에서도 해당 리스닝 항목이 표시되지 않았다. ss만으로 Windows·Docker Desktop 전체의 포트 예약까지 확정한 것은 아니며, 이후 실제 실행 성공으로 이번 포트 연결을 확인했다. 포트가 이미 사용 중일 때 점유자를 찾아 해제하는 절차는 [11번 문서](11-port-conflict.md)에 따로 기록했다.
 
 ## 5. Compose 파일과 설정 해석
 

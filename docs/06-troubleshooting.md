@@ -2,7 +2,7 @@
 
 ## 기록 원칙 및 현황
 
-2026-11-02까지 제공된 실제 실행 결과와 캡처에 2026-11-03 추가 실습(사례 8·9)을 더해 정리했다. 오류·환경 설정 문제 9건 중 8건은 해결 또는 복구 결과를 확인했고, VS Code Server 설치 실패 1건은 원인 미확인으로 남겼다. 사례 8은 복구는 확인했지만 포트 매핑이 비었던 원인은 확인하지 못했다. 미해결 설치 메시지와 현재 WSL 개발 세션의 정상 동작은 구분한다.
+2026-11-02까지 제공된 실제 실행 결과와 캡처에 2026-11-03 추가 실습(사례 8·9)을 더해 정리했다. 오류·환경 설정 문제 9건 중 8건은 해결 또는 복구 결과를 확인했고, VS Code Server 설치 실패 1건은 원인 미확인으로 남겼다. 사례 8은 복구는 확인했고 두 번 재현됐지만 포트 매핑이 비었던 원인은 확인하지 못했다. 미해결 설치 메시지와 현재 WSL 개발 세션의 정상 동작은 구분한다.
 
 | 번호 | 문제 | 상태 |
 |---|---|---|
@@ -668,20 +668,21 @@ debug1: Exit status 1
 
 ## 8. 중지 후 다시 시작한 Docker 컨테이너의 포트 매핑이 비어 있음
 
-- 수행 일자: 2026-11-03
-- 상태: 새 컨테이너 생성으로 복구 확인 / 원인 미확인
+- 수행 일자: 2026-11-03(1차), 2026-11-04(재실습)
+- 상태: 새 컨테이너 생성으로 복구 확인 / 원인 미확인 / 두 번 재현
 - 자세한 실습 기록: [포트 충돌 검증](11-port-conflict.md)
 
 ### 증상
 
 18086 포트를 쓰던 컨테이너를 중지한 뒤, 포트 충돌로 `Created` 상태에 머물러 있던 retry 컨테이너를 `docker start`로 시작했다. 같은 설정으로 실행될 것이라고 예상했다.
 
-컨테이너는 `running`이었지만 호스트에서 접속되지 않았다. 아래 네 가지는 실습 대화 기록에서 확인한 내용이다.
+컨테이너는 `running`이었지만 호스트에서 접속되지 않았다.
 
 - `docker ps`의 PORTS: `80/tcp`만 표시
 - `docker port`: 출력 없음
 - `localhost:18086`: 연결 실패
-- 컨테이너 상태: `running`
+
+같은 현상이 서로 다른 공용 노트북에서 두 번 나왔다(2026-11-03 `4F-43`, 2026-11-04 `5F-85`). 아래 출력은 재실습(11-04) 값이다.
 
 ### 원인 분석
 
@@ -697,21 +698,36 @@ RequestedBindings={"80/tcp":[{"HostIp":"127.0.0.1","HostPort":"18086"}]}
 $ docker inspect "$port_retry" --format 'CurrentPorts={{json .NetworkSettings.Ports}}'
 CurrentPorts={"80/tcp":[]}
 
-$ docker logs --tail 20 "$port_retry"
-/docker-entrypoint.sh: Configuration complete; ready for start up
-2026/11/03 07:14:52 [notice] 1#1: nginx/1.31.8
-2026/11/03 07:14:52 [notice] 1#1: start worker processes
+$ sleep 8
+$ docker inspect "$port_retry" --format 'CurrentPorts={{json .NetworkSettings.Ports}}'
+CurrentPorts={"80/tcp":[]}
 ```
-
-로그는 NGINX 시작 부분만 발췌했다.
 
 | 항목 | 출력 | 의미 |
 |---|---|---|
 | `RequestedBindings` | `127.0.0.1:18086 → 80/tcp` | 요청한 포트 설정은 남아 있음 |
 | `CurrentPorts` | `{"80/tcp":[]}` | 실제 호스트 포트 매핑은 비어 있음 |
-| NGINX 로그 | 정상 시작 | 웹 서버 쪽 문제는 아님 |
+| 8초 뒤 | 여전히 비어 있음 | 기다리면 해결되는 문제가 아님 |
+| NGINX 로그 | worker 프로세스까지 정상 시작 | 웹 서버 쪽 문제는 아님 |
 
-Docker 내부 원인은 확인하지 못했다. 같은 조건에서 항상 재현되는지도 확인하지 않았다.
+가설 두 가지를 비교했다.
+
+- 가설 1: 컨테이너를 중지했다가 start하면 항상 매핑이 사라진다.
+- 가설 2: 처음 시작이 포트 충돌로 실패한 컨테이너만 매핑을 얻지 못한다.
+
+```console
+$ docker start "$port_owner"
+$ docker inspect "$port_owner" --format 'CurrentPorts={{json .NetworkSettings.Ports}}'
+CurrentPorts={"80/tcp":[{"HostIp":"127.0.0.1","HostPort":"18086"}]}
+
+$ docker stop "$port_owner"
+$ docker stop "$port_retry"
+$ docker start "$port_retry"
+$ docker inspect "$port_retry" --format 'CurrentPorts={{json .NetworkSettings.Ports}}'
+CurrentPorts={"80/tcp":[]}
+```
+
+한 번도 실패하지 않은 owner는 중지 후 start해도 매핑이 복구됐다(가설 1 기각). 처음 시작이 충돌로 실패한 retry는 포트가 비어 있어도, 한 번 더 중지·start해도 매핑이 없었다(가설 2와 부합). 이 환경(Docker Desktop 29.9.2, WSL 2)에서 관찰한 범위의 결과이고, Docker 내부 원인은 확인하지 못했다.
 
 ### 해결
 
@@ -719,28 +735,29 @@ Docker 내부 원인은 확인하지 못했다. 같은 조건에서 항상 재�
 
 ```console
 $ docker stop "$port_retry" && docker rm "$port_retry"
-workspace-port-retry-20261103-161131-1099
-workspace-port-retry-20261103-161131-1099
+workspace-port-retry-20261104-152602-665
+workspace-port-retry-20261104-152602-665
 
-$ docker run -d --name "$port_recovered" \
+$ docker run -d \
+    --name "$port_recovered" \
     --label "com.asheli1a.port-run=$port_run" \
-    -p 127.0.0.1:18086:80 nginx:alpine
-cc93dd0b87a070d5cd441f5ba602046b6452a72ba0101b31b70305bbe033c7ab
+    -p 127.0.0.1:18086:80 \
+    nginx:alpine
+bf4592056f2db3ce9bdbcf4bdd7904442593f02559afab88767a8cbc4da22744
 ```
 
 ### 재검증
 
 ```console
-$ docker inspect "$port_recovered" --format 'CurrentPorts={{json .NetworkSettings.Ports}}'
-CurrentPorts={"80/tcp":[{"HostIp":"127.0.0.1","HostPort":"18086"}]}
-
 $ docker port "$port_recovered"
 80/tcp -> 127.0.0.1:18086
 
-$ curl --max-time 5 -i http://localhost:18086/
+$ docker inspect "$port_recovered" --format 'CurrentPorts={{json .NetworkSettings.Ports}}'
+CurrentPorts={"80/tcp":[{"HostIp":"127.0.0.1","HostPort":"18086"}]}
+
+$ curl --max-time 5 -I http://localhost:18086/
 HTTP/1.1 200 OK
 Server: nginx/1.31.8
-Content-Length: 896
 ```
 
 | 항목 | 기존 retry | 새 recovered |
@@ -752,13 +769,13 @@ Content-Length: 896
 
 ### 현재 상태
 
-복구 확인. 정리할 때는 실습 라벨을 확인한 owner와 recovered만 이름으로 지정해 삭제했다. `prune`과 `-f`는 쓰지 않았고, 기존 공용 컨테이너 `mybox`, `unruffled_blackburn`은 건드리지 않았다.
+복구 확인. 정리할 때는 라벨을 확인한 owner와 recovered만 이름으로 지정해 삭제했다. `prune`과 `-f`는 쓰지 않았다.
 
 ### 배운 점
 
 - `running`이나 `Up`만 보고 접속 성공으로 보지 않는다.
 - 요청한 설정(`RequestedBindings`)과 실제 상태(`CurrentPorts`, `docker port`)를 따로 확인한다.
-- 포트 충돌로 시작하지 못한 컨테이너는 `docker start`로 살리려 하지 않고, 포트를 비운 뒤 `-p`를 명시해 새로 만든다. 이번에 확인한 방법이며 원인은 확인하지 못했다.
+- 포트 충돌로 시작하지 못한 컨테이너는 `docker start`로 살리려 하지 않는다. 포트를 비운 뒤 `-p`를 명시해 새로 만든다. 이 환경에서 두 번 확인한 방법이다.
 
 ## 9. clone한 저장소의 README 파일명이 README로 바뀌어 있음
 
