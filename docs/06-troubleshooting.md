@@ -2,7 +2,7 @@
 
 ## 기록 원칙 및 현황
 
-2026-11-02까지 제공된 실제 실행 결과와 캡처를 기준으로 정리했다. 오류·환경 설정 문제 7건 중 6건은 해결 결과를 확인했고, VS Code Server 설치 실패 1건은 원인 미확인으로 남겼다. 미해결 설치 메시지와 현재 WSL 개발 세션의 정상 동작은 구분한다.
+2026-11-02까지 제공된 실제 실행 결과와 캡처에 2026-11-03 추가 실습(사례 8·9)을 더해 정리했다. 오류·환경 설정 문제 9건 중 8건은 해결 또는 복구 결과를 확인했고, VS Code Server 설치 실패 1건은 원인 미확인으로 남겼다. 사례 8은 복구는 확인했지만 포트 매핑이 비었던 원인은 확인하지 못했다. 미해결 설치 메시지와 현재 WSL 개발 세션의 정상 동작은 구분한다.
 
 | 번호 | 문제 | 상태 |
 |---|---|---|
@@ -13,6 +13,8 @@
 | 5 | 공용 노트북의 VSCode에 타인 GitHub 계정이 로그인됨 | 본인 계정 전환 및 설정 확인 완료 |
 | 6 | code 실행 중 VS Code Server 설치 실패 | 원인 미확인 / 현재 WSL 작업은 가능 |
 | 7 | GitHub SSH 추가 이메일 확인 미완료 상태에서 인증 시도 | 확인 완료 후 같은 키로 인증·SSH push 성공 |
+| 8 | 중지 후 다시 시작한 Docker 컨테이너의 호스트 포트 매핑이 비어 있음 | 새 컨테이너를 `-p`로 생성해 복구 확인 / 원인 미확인 |
+| 9 | clone한 저장소의 README 파일명이 `README`로 바뀌어 있음 | `README.md`로 복원 |
 
 ### 증거 편집 원칙
 
@@ -445,13 +447,13 @@ origin  https://github.com/Asheli1a/1-Setting-Up-a-Workspace-.git (push)
 
 ### 원인 분석
 
-공용 장비에 기존 로그인 세션이 남아 있었다. 프로젝트의 Git 원격 URL이나 커밋 작성자 이름이 본인 계정과 같다고 해서 VSCode의 로그인 계정도 같다고 판단해서는 안 됐다.
+공용 장비에 기존 로그인 세션이 남아 있었다. 프로젝트의 Git 원격 URL이나 커밋의 user.name이 본인 계정과 같다고 해서 VSCode의 로그인 계정도 같다고 판단해서는 안 됐다.
 
 다음 항목을 별도로 확인했다.
 
 | 항목 | 확인 대상 |
 |---|---|
-| Git 작성자 | user.name / user.email |
+| Git 작성자(Author) | user.name / user.email |
 | 기본 브랜치 | init.defaultBranch / 현재 브랜치 |
 | Git 원격 | origin URL |
 | GitHub CLI 인증 | gh auth status |
@@ -664,13 +666,154 @@ debug1: Exit status 1
 - 공개키 지문·서버의 키 수락·본인 계정 인사말을 확인한다.
 - 이메일 확인 코드와 개인키·암호 문구는 증거에 넣지 않는다.
 
-## 8. 최종 정리
+## 8. 중지 후 다시 시작한 Docker 컨테이너의 포트 매핑이 비어 있음
+
+- 수행 일자: 2026-11-03
+- 상태: 새 컨테이너 생성으로 복구 확인 / 원인 미확인
+- 자세한 실습 기록: [포트 충돌 검증](11-port-conflict.md)
+
+### 증상
+
+18086 포트를 쓰던 컨테이너를 중지한 뒤, 포트 충돌로 `Created` 상태에 머물러 있던 retry 컨테이너를 `docker start`로 시작했다. 같은 설정으로 실행될 것이라고 예상했다.
+
+컨테이너는 `running`이었지만 호스트에서 접속되지 않았다. 아래 네 가지는 실습 대화 기록에서 확인한 내용이다.
+
+- `docker ps`의 PORTS: `80/tcp`만 표시
+- `docker port`: 출력 없음
+- `localhost:18086`: 연결 실패
+- 컨테이너 상태: `running`
+
+### 원인 분석
+
+`docker inspect`로 요청한 설정과 실제 상태를 따로 확인했다.
+
+```console
+$ docker inspect "$port_retry" --format 'State={{.State.Status}}'
+State=running
+
+$ docker inspect "$port_retry" --format 'RequestedBindings={{json .HostConfig.PortBindings}}'
+RequestedBindings={"80/tcp":[{"HostIp":"127.0.0.1","HostPort":"18086"}]}
+
+$ docker inspect "$port_retry" --format 'CurrentPorts={{json .NetworkSettings.Ports}}'
+CurrentPorts={"80/tcp":[]}
+
+$ docker logs --tail 20 "$port_retry"
+/docker-entrypoint.sh: Configuration complete; ready for start up
+2026/11/03 07:14:52 [notice] 1#1: nginx/1.31.8
+2026/11/03 07:14:52 [notice] 1#1: start worker processes
+```
+
+로그는 NGINX 시작 부분만 발췌했다.
+
+| 항목 | 출력 | 의미 |
+|---|---|---|
+| `RequestedBindings` | `127.0.0.1:18086 → 80/tcp` | 요청한 포트 설정은 남아 있음 |
+| `CurrentPorts` | `{"80/tcp":[]}` | 실제 호스트 포트 매핑은 비어 있음 |
+| NGINX 로그 | 정상 시작 | 웹 서버 쪽 문제는 아님 |
+
+Docker 내부 원인은 확인하지 못했다. 같은 조건에서 항상 재현되는지도 확인하지 않았다.
+
+### 해결
+
+실습 라벨이 일치하는 retry 컨테이너만 중지·삭제하고, `-p`를 명시해 새 컨테이너를 만들었다.
+
+```console
+$ docker stop "$port_retry" && docker rm "$port_retry"
+workspace-port-retry-20261103-161131-1099
+workspace-port-retry-20261103-161131-1099
+
+$ docker run -d --name "$port_recovered" \
+    --label "com.asheli1a.port-run=$port_run" \
+    -p 127.0.0.1:18086:80 nginx:alpine
+cc93dd0b87a070d5cd441f5ba602046b6452a72ba0101b31b70305bbe033c7ab
+```
+
+### 재검증
+
+```console
+$ docker inspect "$port_recovered" --format 'CurrentPorts={{json .NetworkSettings.Ports}}'
+CurrentPorts={"80/tcp":[{"HostIp":"127.0.0.1","HostPort":"18086"}]}
+
+$ docker port "$port_recovered"
+80/tcp -> 127.0.0.1:18086
+
+$ curl --max-time 5 -i http://localhost:18086/
+HTTP/1.1 200 OK
+Server: nginx/1.31.8
+Content-Length: 896
+```
+
+| 항목 | 기존 retry | 새 recovered |
+|---|---|---|
+| 상태 | `running` | `running` |
+| `CurrentPorts` | `{"80/tcp":[]}` | `127.0.0.1:18086` 매핑 |
+| `docker port` | 출력 없음 | `80/tcp -> 127.0.0.1:18086` |
+| 호스트 HTTP | 연결 실패 | `200 OK` |
+
+### 현재 상태
+
+복구 확인. 정리할 때는 실습 라벨을 확인한 owner와 recovered만 이름으로 지정해 삭제했다. `prune`과 `-f`는 쓰지 않았고, 기존 공용 컨테이너 `mybox`, `unruffled_blackburn`은 건드리지 않았다.
+
+### 배운 점
+
+- `running`이나 `Up`만 보고 접속 성공으로 보지 않는다.
+- 요청한 설정(`RequestedBindings`)과 실제 상태(`CurrentPorts`, `docker port`)를 따로 확인한다.
+- 포트 충돌로 시작하지 못한 컨테이너는 `docker start`로 살리려 하지 않고, 포트를 비운 뒤 `-p`를 명시해 새로 만든다. 이번에 확인한 방법이며 원인은 확인하지 못했다.
+
+## 9. clone한 저장소의 README 파일명이 README로 바뀌어 있음
+
+- 수행 일자: 2026-11-03
+- 상태: `README.md`로 복원
+
+### 증상
+
+초기화된 공용 노트북에서 저장소를 새로 clone했다. 최신 커밋이 `9be315b Rename README.md to README`였다.
+
+문서들이 `../README.md`를 링크하고 있어서, 파일명이 `README`면 링크가 끊길 수 있었다.
+
+### 확인과 해결
+
+`git ls-files`와 `ls -l`로 `README`와 `README.md`가 각각 있는지 확인한 뒤, `README`만 있을 때 이름을 되돌렸다. 둘 다 있으면 덮어쓰지 않고 내용을 먼저 보는 조건을 두었다.
+
+```bash
+git ls-files -- README README.md
+ls -l README README.md
+
+git mv -- README README.md
+git diff --cached --summary
+git status --short
+```
+
+### 재검증
+
+이후 실습 출력의 `git status --short`에 이름 변경이 표시됐다.
+
+```console
+$ git status --short
+R  README -> README.md
+?? cli-practice/port-conflict/
+```
+
+`mkdir -p cli-practice/port-conflict` 직후에는 `git status --short`에 아무것도 나오지 않았다. 빈 폴더는 Git이 추적하지 않기 때문이고, 파일이 생기면 `??`로 표시된다.
+
+### 현재 상태
+
+복원 확인. GitHub의 `main`에도 2026-11-04에 `Add README.md file` 커밋으로 `README.md`가 다시 있다.
+
+### 배운 점
+
+- clone 직후 `git log -1 --oneline`과 `ls`로 링크 대상 파일명이 그대로인지 확인한다.
+- 이름은 `git mv`로 바꿔서 변경 이력이 이름 변경으로 남게 한다.
+
+## 10. 최종 정리
 
 - 사례 1~3: 기존 Docker·HTTPS 인증·Git 이력 문제의 해결 기록을 유지했다.
 - 사례 4: Windows PowerShell과 Ubuntu Bash의 실행 환경 차이를 확인하고 해결했다.
 - 사례 5: 공용 장비의 계정 혼동을 바로잡고, 인증과 커밋 설정을 따로 검증했다.
 - 사례 6: 설치 실패는 미해결로 공개하되 현재 세션 정상 동작과 구분했다.
 - 사례 7: GitHub 웹의 추가 이메일 확인을 완료하지 않은 채 SSH를 시험한 뒤, 확인 완료·같은 키 재시험·실제 SSH push로 해결을 검증했다.
+- 사례 8: 컨테이너가 running이어도 포트 매핑이 비어 있을 수 있었다. 요청한 설정과 실제 매핑을 따로 확인했고, 새 컨테이너로 복구했다. 원인은 확인하지 못했다.
+- 사례 9: clone 직후 README 파일명을 확인하고 `README.md`로 되돌렸다.
 - 캡처의 크롭과 공개본의 실명 가림은 가독성·개인정보 보호를 위한 편집이며, 포트·버전·상태 등 검증 결과는 바꾸지 않았다.
 
 [프로젝트 README](../README.md)
