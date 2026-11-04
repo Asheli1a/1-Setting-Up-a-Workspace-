@@ -198,6 +198,42 @@ $ find . -maxdepth 2 -not -path './.git*' -not -path './docs/images/*' | sort
 
 `cli-practice/basic-ops`와 `cli-practice/permissions`는 처음 노트북에서 만든 실습 폴더였고 커밋하지 않았다. 이 실습의 명령과 출력은 [01번 문서](docs/01-terminal.md)에 있다.
 
+재현 우선순위는 다음과 같다.
+
+- 필수: `Dockerfile`, `.dockerignore`, `site/index.html`, `docs/`
+- 선택(보너스 과제): `docker-compose*.yml`, `nginx/env-templates`
+- 해당 실험을 다시 할 때만: `cli-practice/bind-site`(바인드 마운트), `cli-practice/port-conflict`(포트 충돌)
+- 재현에는 필요 없음: `docs/images`(증거 캡처)
+
+### 4.7. 포트 충돌 시 진단 순서
+
+호스트 포트로 접속이 안 되거나 `docker run -p`가 실패할 때 아래 순서로 확인한다. 실제 실습 기록은 [11번 문서](docs/11-port-conflict.md)에 있다.
+
+```bash
+# 1. 누가 포트를 쓰고 있는지 확인 (예: 8080)
+ss -ltnp '( sport = :8080 )'
+lsof -nP -iTCP:8080 -sTCP:LISTEN
+fuser -v 8080/tcp
+
+# 2. ss의 프로세스 이름이 비어 있으면 Docker 컨테이너일 수 있다
+docker ps --format 'table {{.Names}}\t{{.Ports}}'
+docker port <컨테이너 이름>
+
+# 3. 내가 만든 대상인지 확인한 뒤에만 종료 (PID나 컨테이너 이름을 지정)
+ps -ww -p <PID> -o pid,ppid,user,args
+kill -TERM <PID>
+docker stop <컨테이너 이름>
+
+# 4. 해제를 확인하고 다시 실행
+ss -ltnp '( sport = :8080 )'
+curl -I http://127.0.0.1:8080/
+```
+
+- 이름이 `python3`나 `docker`라는 이유만으로 종료하지 않는다. 명령 전체와 부모 PID, 컨테이너 라벨을 확인한다. `kill -9`, `killall`, `pkill`, `prune`은 쓰지 않는다.
+- 주인을 모르거나 내가 만든 것이 아니면 종료하지 말고 다른 호스트 포트를 쓴다. 이번 실습은 18080·18081처럼 기존 포트와 겹치지 않는 번호를 골랐다.
+- 포트 충돌로 `Created`에 머문 컨테이너는 `docker start`로 살리지 않는다. 포트를 비운 뒤 `-p`를 명시해 새로 만든다([트러블슈팅 사례 8](docs/06-troubleshooting.md#8-중지-후-다시-시작한-docker-컨테이너의-포트-매핑이-비어-있음)).
+- 포트가 비어 있는데도 접속이 안 되면 `docker port`와 `docker inspect`의 `CurrentPorts`를 확인한다. Docker Desktop의 WSL 연동은 [사례 1](docs/06-troubleshooting.md#1-docker-소켓-접근-권한-오류)을 참고한다. Windows 방화벽은 이번 실습에서 확인하지 않았다.
+
 ## 5. 요구사항별 검증 결과
 
 |항목|검증 방법|결과|상세 증거|
