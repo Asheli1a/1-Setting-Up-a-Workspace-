@@ -30,6 +30,15 @@
 
 실습용 `site/index.html`만 제공하도록 `--directory`를 지정하고, `127.0.0.1`에만 묶었다.
 
+이 실습에서 쓴 웹 파일과 서버 로그는 저장소의 [`cli-practice/port-conflict`](../cli-practice/port-conflict)에 있다.
+
+| 파일 | 내용 |
+|---|---|
+| `site/index.html` | 두 서버가 제공한 실습용 페이지 (108바이트) |
+| `logs/first-20261104-152141.log` | 첫 서버의 시작 줄과 요청 로그 (187바이트) |
+| `logs/second-20261104-152141.log` | 두 번째 서버의 `Address already in use` traceback (1,128바이트) |
+| `logs/reuse-20261104-152141.log` | 해제 뒤 같은 포트로 다시 띄운 서버의 로그 (127바이트) |
+
 ### 첫 서버 실행과 점유자 확인
 
 ```console
@@ -391,7 +400,7 @@ $ docker info --format 'OS={{.OperatingSystem}} Kernel={{.KernelVersion}} Contai
 OS=Docker Desktop Kernel=6.18.54.1-microsoft-standard-WSL2 Containers=0 Images=1
 ```
 
-`nginx:alpine` 이미지는 남겼다. `git status --short`에는 `?? cli-practice/port-conflict/`가 표시됐고, 로그 파일은 삭제하지 않고 보관했다.
+`nginx:alpine` 이미지는 남겼다. `git status --short`에는 `?? cli-practice/port-conflict/`가 표시됐고, 로그 파일은 삭제하지 않고 보관했다. 이후 이 폴더를 저장소에 올렸다.
 
 ## 검증 결과
 
