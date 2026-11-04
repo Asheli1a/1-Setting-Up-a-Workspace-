@@ -53,7 +53,7 @@
 | [08-compose-multi](docs/08-compose-multi.md) | Compose 두 서비스·내부 통신·종료 | 실제 로그 검증 완료 |
 | [09-compose-env](docs/09-compose-env.md) | 환경 변수·NGINX 내부 포트·동일 이미지·종료 | 8080/9090 실제 비교 검증 완료 |
 | [10-github-ssh](docs/10-github-ssh.md) | SSH 계정 인증·실제 push·원격 SHA | 실제 전송 검증 완료 |
-| [11-port-conflict](docs/11-port-conflict.md) | Python·Docker 포트 충돌, 점유자 식별·해제·재사용, 매핑 누락 | 2026-11-03 추가 실습, 일부 수치는 대화 기록 기준 |
+| [11-port-conflict](docs/11-port-conflict.md) | Python·Docker 포트 충돌, 점유자 식별·해제·재사용, 매핑 누락 | 2026-11-04 재실습 원본 출력 검증 완료 |
 | [12-volume-backup-restore](docs/12-volume-backup-restore.md) | 볼륨 tar 백업·새 볼륨 복원·체크섬 대조 | 복원·대조 구간 실제 로그 검증 완료 |
 
 실습 기록의 검토 기준은 2026-10-31까지 제공된 파일과 실행 결과이며, 보안 점검·실명 비식별화는 2026-11-02에 추가 반영했다. 포트 충돌(11)과 볼륨 백업·복원(12)은 초기화된 공용 노트북에서 2026-11-03에 다시 수행한 추가 실습이다. 문서 편집 완료와 필수 과제 전체 완료는 구분한다. 05 문서는 원격에서 내용과 캡처 링크를 확인했다. 웹 서버는 커밋 [ab1ce1a5854d598ea058c41d885a58fb826ff0a5](https://github.com/Asheli1a/1-Setting-Up-a-Workspace-/commit/ab1ce1a5854d598ea058c41d885a58fb826ff0a5)의 별도 clone에서 재현했다.
@@ -72,7 +72,7 @@
 - [x] attach/exec 및 종료·유지 차이 관찰
 - [x] Dockerfile 직접 작성 및 커스텀 이미지 빌드
 - [x] 웹 서버 실행 및 포트 매핑 접속 확인
-- [x] 포트 충돌 재현·점유자 식별·해제·같은 포트 재사용 — Python·Docker
+- [x] 포트 충돌 재현·점유자 식별·해제·같은 포트 재사용 — Python·Docker, 2026-11-04 재실습 원본 출력
 - [x] 바인드 마운트 변경 전후 응답 비교
 - [x] 컨테이너 삭제·재생성 후 볼륨 데이터 유지 확인
 - [x] 볼륨 tar 백업의 새 볼륨 복원과 체크섬 대조 — 파일 3개, 샘플 데이터 기준
@@ -163,7 +163,7 @@ docker rm workspace-web-check-8080 workspace-web-check-8081
 |포트 매핑|8080·8081 curl 응답 및 주소창 포함 캡처|완료 — 두 포트 모두 HTTP 200 및 v1 콘텐츠 확인|[기록](docs/03-web.md)|
 |바인드 마운트|마운트 설정 및 호스트 파일 변경 전후 응답 비교|완료 — 재빌드·재시작 없이 8082의 v1→v2 반영, 8080·8081은 v1 유지|[기록](docs/04-storage.md)|
 |볼륨 영속성|볼륨 생성·연결, 첫 컨테이너 삭제, 새 컨테이너에서 읽기|완료 — bc3f232b6753 삭제 후 6c0da8079371에서 기존 파일 유지 확인|[기록](docs/04-storage.md)|
-|포트 충돌|점유 재현, 점유자 식별, 해제 후 같은 포트 재사용|완료 — Python은 `Errno 98`·종료 코드 1, Docker는 `port is already allocated`·종료 코드 125. 복구 후 매핑·HTTP 200 확인|[기록](docs/11-port-conflict.md)|
+|포트 충돌|점유 재현, 점유자 식별, 해제 후 같은 포트 재사용|완료 — Python은 `Errno 98`·종료 코드 1, Docker는 `port is already allocated`·종료 코드 125. 점유자는 ps·ss·lsof·fuser로 확인(Docker는 docker ps·docker port). 복구 후 매핑·HTTP 200 확인|[기록](docs/11-port-conflict.md)|
 |볼륨 백업·복원|tar.gz 백업을 새 볼륨에 복원, 압축 파일·파일별 체크섬 대조|완료 — 파일 3개 복원, 체크섬 목록 차이 없음(종료 코드 0). 샘플 데이터 기준|[기록](docs/12-volume-backup-restore.md)|
 |Git·GitHub·VSCode|설정 출력, push 및 연동 화면|완료 — 전역·저장소별 설정, 본인 계정 및 WSL Git·원격 확인|[기록](docs/05-git-github.md) · [최신 검증](docs/06-troubleshooting.md#5-공용-노트북의-vscode에-타인-github-계정이-로그인됨)|
 |별도 clone 재현|원격 커밋 clone, 빌드, 두 컨테이너 실행, HTTP·브라우저 확인|완료 — 동일 PC·동일 엔진 및 캐시 사용, 두 포트 HTTP 200·v1|[기록](docs/03-web.md#별도-clone에서-웹-서버-재현-검증)|
@@ -281,7 +281,7 @@ Git은 로컬에서 변경 이력과 브랜치를 관리하는 도구이고, Git
 | 5 | 공용 VSCode의 타인 GitHub 계정 | 본인 계정으로 다시 로그인하고 CLI 인증·저장소별 설정 확인 | Asheli1a 계정, CLI 활성 상태, `.git/config`의 확인 | 전환·설정 확인 완료 | [계정 확인 기록](docs/06-troubleshooting.md#5-공용-노트북의-vscode에-타인-github-계정이-로그인됨) |
 | 6 | `code .` 실행 중 서버 설치 실패 | 저장 완료와 최종 실패 메시지를 함께 기록, 현재 동작하는 WSL 창 사용 | 현재 WSL Git 정상이나 해당 설치 경로의 복구는 미확인 | 원인 미확인 | [설치 실패 기록](docs/06-troubleshooting.md#6-code-실행-중-vs-code-server-설치-실패) |
 | 7 | GitHub SSH 인증 실패 | GitHub 웹의 추가 이메일 확인 완료 후 같은 키로 재시험 | 본인 계정 인증 및 실제 SSH push·원격 SHA 일치 확인 | 해결 완료 | [SSH 인증 오류 기록](docs/06-troubleshooting.md#7-github-ssh-인증-실패) |
-| 8 | 중지 후 다시 시작한 Docker 컨테이너의 포트 매핑 없음 | 라벨을 확인한 retry 컨테이너만 삭제하고 `-p`를 명시해 새로 생성 | `CurrentPorts`에 `127.0.0.1:18086` 표시, `docker port` 출력, HTTP 200 | 복구 확인 / 원인 미확인 | [포트 매핑 누락 기록](docs/06-troubleshooting.md#8-중지-후-다시-시작한-docker-컨테이너의-포트-매핑이-비어-있음) |
+| 8 | 중지 후 다시 시작한 Docker 컨테이너의 포트 매핑 없음 | 라벨을 확인한 retry 컨테이너만 삭제하고 `-p`를 명시해 새로 생성 | `CurrentPorts`에 `127.0.0.1:18086` 표시, `docker port` 출력, HTTP 200 | 복구 확인 / 원인 미확인 / 2회 재현 | [포트 매핑 누락 기록](docs/06-troubleshooting.md#8-중지-후-다시-시작한-docker-컨테이너의-포트-매핑이-비어-있음) |
 | 9 | clone한 저장소의 README 파일명이 `README`로 바뀌어 있음 | `git mv -- README README.md` | `git status --short`에 `R  README -> README.md` 표시 | 해결 완료 | [README 파일명 기록](docs/06-troubleshooting.md#9-clone한-저장소의-readme-파일명이-readme로-바뀌어-있음) |
 
 ### 해결 과정에서 확인한 점
