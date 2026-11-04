@@ -438,4 +438,30 @@ Container-only file is absent
 - 이 로그 종료 시점에 `workspace-volume-1`은 삭제했고, `workspace-volume-2`와 `workspace-data`는 삭제하지 않았다.
 - 이번 검증 과정에서는 볼륨 삭제 명령을 사용하지 않았다.
 
+## 4. 경로와 선택 기준 요약
+
+### 경로를 쓰는 위치
+
+| 구분 | 바인드 마운트 | 이름 있는 볼륨 |
+|---|---|---|
+| 호스트 쪽 지정 | 절대 경로 (`$(pwd)/cli-practice/bind-site`) | 볼륨 이름 (`workspace-data`) |
+| 컨테이너 쪽 지정 | 컨테이너 안의 절대 경로 (`/usr/share/nginx/html`) | 컨테이너 안의 절대 경로 (`/data`) |
+| 실제 저장 위치 | 내가 정한 호스트 폴더 | Docker가 관리하는 경로 (`/var/lib/docker/volumes/workspace-data/_data`) |
+
+- `docker run --mount`의 바인드 마운트는 호스트 경로를 절대 경로로 줘야 한다. 그래서 `$(pwd)`로 현재 위치를 절대 경로로 바꿔서 썼다. [Docker 튜토리얼](https://github.com/docker/getting-started/blob/master/docs/tutorial/using-bind-mounts/index.md)도 같은 이유로 `pwd`를 쓴다.
+- Compose 파일에서는 `./nginx/env-templates`처럼 상대 경로를 적었고, `docker compose config` 출력에서 `/home/user/dev-workstation/nginx/env-templates`로 풀린 것을 확인했다([09번 문서](09-compose-env.md)).
+- 컨테이너 쪽 경로는 어느 방식이든 컨테이너 안의 절대 경로다. 호스트의 현재 위치와 관계없다.
+- 볼륨은 호스트 경로를 직접 적지 않고 이름으로 가리킨다. 이름이 없으면 Docker가 자동으로 새 볼륨을 만들 수 있어서 이름을 정확히 써야 한다.
+
+### 어떤 것을 고를까
+
+| 상황 | 선택 | 이번 실습의 근거 |
+|---|---|---|
+| 호스트에서 파일을 고치고 바로 반영을 확인한다 (개발) | 바인드 마운트 | 8082에서 재빌드·재시작 없이 v1 → v2 |
+| 컨테이너를 지워도 데이터를 남겨야 한다 | 이름 있는 볼륨 | `workspace-data`의 파일이 새 컨테이너에서 유지됨 |
+| 설정 파일을 컨테이너가 읽기만 하게 한다 | 바인드 마운트 + 읽기 전용 | 9번 문서의 `/etc/nginx/templates` |
+| 데이터를 백업하거나 다른 곳으로 옮긴다 | 이름 있는 볼륨 + tar 백업 | [12번 문서](12-volume-backup-restore.md) |
+
+바인드 마운트는 호스트의 폴더 구조에 의존해서 다른 PC에서는 경로를 바꿔야 한다. 볼륨은 Docker가 위치를 관리해서 같은 이름으로 옮겨 쓰기 쉽다. 이 표는 이번 실습에서 한 경우를 기준으로 한 선택 기준이며, 모든 경우에 맞는 정답은 아니다.
+
 [프로젝트 README](../README.md)
