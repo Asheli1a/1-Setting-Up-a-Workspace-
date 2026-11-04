@@ -193,7 +193,7 @@ $ find . -maxdepth 2 -not -path './.git*' -not -path './docs/images/*' | sort
 | `Dockerfile`, `.dockerignore`, `site/index.html` | 커스텀 웹 이미지의 소스와 빌드 설정 ([03](docs/03-web.md)) |
 | `docker-compose*.yml`, `nginx/env-templates` | Compose 단일·멀티·환경 변수 실습 설정 ([07](docs/07-compose.md), [08](docs/08-compose-multi.md), [09](docs/09-compose-env.md)) |
 | `cli-practice/bind-site` | 바인드 마운트 실험용 복사본 ([04](docs/04-storage.md)) |
-| `cli-practice/port-conflict` | 포트 충돌 재실습의 웹 파일과 로그 폴더. 이번 clone에서 만든 로컬 폴더이고 커밋하지 않았다 ([11](docs/11-port-conflict.md)) |
+| `cli-practice/port-conflict` | 포트 충돌 재실습의 웹 파일(`site/index.html`)과 서버 로그 3개(`logs/`) ([11](docs/11-port-conflict.md)) |
 | `docs`, `docs/images` | 실습 기록과 캡처 |
 
 `cli-practice/basic-ops`와 `cli-practice/permissions`는 처음 노트북에서 만든 실습 폴더였고 커밋하지 않았다. 이 실습의 명령과 출력은 [01번 문서](docs/01-terminal.md)에 있다.
